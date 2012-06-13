@@ -1,11 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace BattleNET
 {
-    public class IBattleNET
+    public interface IBattleNET
     {
+        EBattlEyeCommandResult SendCommand(string command);
+        bool IsConnected();
+        EBattlEyeConnectionResult Connect();
+        event BattlEyeMessageEventHandler MessageReceivedEvent;
+        event BattlEyeDisconnectEventHandler DisconnectEvent;
     }
 }
