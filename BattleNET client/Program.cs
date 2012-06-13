@@ -18,8 +18,10 @@ namespace BattleNET_client
             b.MessageReceivedEvent += DumpMessage;
             b.DisconnectEvent += Disconnected;
             b.Connect();
-            Thread.Sleep(30000);
-            b.Disconnect();
+            //b.SendCommand(EBattlEyeCommand.Players);
+            //b.SendCommand(EBattlEyeCommand.Missions);
+           // Thread.Sleep(5000);
+           // b.Disconnect();
             Console.ReadLine();
         }
 
