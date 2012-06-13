@@ -9,7 +9,7 @@ namespace BattleNET
 {
     public class BattleNETClient : IBattleNET
     {
-        public bool IsLoggedIn;
+        public bool KeepRunning;
 
         private Socket _socket;
       
@@ -70,6 +70,7 @@ namespace BattleNET
         {
             try
             {
+                KeepRunning = true;
                 IPAddress ipAddress = IPAddress.Parse(_loginCredentials.Host);
                 EndPoint remoteEP = new IPEndPoint(ipAddress, _loginCredentials.Port);
 
@@ -88,24 +89,32 @@ namespace BattleNET
                     SendCommand(Helpers.HexString2Ascii("FF") + Helpers.HexString2Ascii("00") + _loginCredentials.Password);
                     new Thread(DoWork).Start();
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     return EBattlEyeConnectionResult.ConnectionFailed;
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return EBattlEyeConnectionResult.ParseError;
             }
             return EBattlEyeConnectionResult.Succes;
         }
 
-        public void DoWork()
+        public void Disconnect()
+        {
+            OnMessageReceived("Disconnecting...");
+            KeepRunning = false;
+            if (_socket.Connected)
+                _socket.DisconnectAsync(new SocketAsyncEventArgs());
+        }
+
+        private void DoWork()
         {
             var bytesReceived = new Byte[256];
             int bytes = 0;
 
-            while (_socket.Connected)
+            while (_socket.Connected && KeepRunning)
             {
                 bytes = _socket.Receive(bytesReceived, bytesReceived.Length, 0);
 

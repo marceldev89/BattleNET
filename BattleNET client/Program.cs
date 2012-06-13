@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using BattleNET;
 
 namespace BattleNET_client
@@ -17,12 +18,14 @@ namespace BattleNET_client
             b.MessageReceivedEvent += DumpMessage;
             b.DisconnectEvent += Disconnected;
             b.Connect();
+            Thread.Sleep(30000);
+            b.Disconnect();
             Console.ReadLine();
         }
 
         private static void Disconnected(BattlEyeDisconnectEventArgs args)
         {
-            Console.WriteLine("Disconnected");
+            Console.WriteLine("Disconnected!");
         }
 
         private static void DumpMessage(BattlEyeMessageEventArgs args)
