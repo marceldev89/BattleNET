@@ -47,7 +47,6 @@ namespace BattleNET
                                                                                                              current +
                                                                                                              b.ToString(
                                                                                                                  "X2"));
-                hash += 0;
                 hash = Helpers.HexString2Ascii(hash);
                 hash = new string(hash.ToCharArray().Reverse().ToArray());
                 header += hash;
@@ -76,7 +75,6 @@ namespace BattleNET
                                                                                                              current +
                                                                                                              b.ToString(
                                                                                                                  "X2"));
-                hash += 0;
                 hash = Helpers.HexString2Ascii(hash);
                 hash = new string(hash.ToCharArray().Reverse().ToArray());
                 header += hash;
@@ -107,7 +105,6 @@ namespace BattleNET
                                                                                                              current +
                                                                                                              b.ToString(
                                                                                                                  "X2"));
-                hash += 0;
                 hash = Helpers.HexString2Ascii(hash);
                 hash = new string(hash.ToCharArray().Reverse().ToArray());
                 header += hash;
@@ -174,6 +171,12 @@ namespace BattleNET
             var bytesReceived = new Byte[4096];
             int bytes = 0;
             bool saveString = false;
+
+            string buffer = null;
+            int bufferCount = 0;
+            int packetCount = 0;
+
+
             while (_socket.Connected && KeepRunning)
             {
                 bytes = _socket.Receive(bytesReceived, bytesReceived.Length, 0);
@@ -181,20 +184,46 @@ namespace BattleNET
                 if (bytesReceived[7] == 0x00 && bytesReceived[8] == 0x01)
                 {
                     OnMessageReceived("Logged in!");
-                    bytesReceived = new Byte[4096];
+                    
+                }
+                else if (bytesReceived[7] == 0x00 && bytesReceived[8] == 0x00)
+                {
+                    OnMessageReceived("Login failed!");
+                    Disconnect();
                 }
                 else if (bytesReceived[7] == 0x02)
                 {
                     SendCommand(Helpers.HexString2Ascii("FF") + Helpers.HexString2Ascii("02") +
                          Encoding.Default.GetString(new[] { bytesReceived[8] }));
-                    OnMessageReceived(Encoding.Default.GetString(bytesReceived, 9, bytes));
-                    bytesReceived = new Byte[4096];
+                    OnMessageReceived(Encoding.Default.GetString(bytesReceived, 9, bytes - 9));
                 }
-                else if (bytesReceived[7] == 0x01 && bytesReceived[8] == 0x00)
+                else if (bytesReceived[7] == 0x01 && bytesReceived[9] == 0x00)
                 {
-                    OnMessageReceived(Encoding.Default.GetString(bytesReceived, 9, bytes));
-                    bytesReceived = new Byte[4096];
+                    if (bytesReceived[11] == 0)
+                    {
+                        packetCount = bytesReceived[10];
+                    }
+
+                    if (bufferCount < packetCount)
+                    {
+                        buffer += Encoding.Default.GetString(bytesReceived, 12, bytes - 12);
+                        bufferCount++;
+                    }
+
+                    if (bufferCount == packetCount)
+                    {
+                        OnMessageReceived(buffer);
+                        buffer = null;
+                        bufferCount = 0;
+                        packetCount = 0;
+                    }
                 }
+                else if (bytesReceived[7] == 0x01)
+                {
+                    OnMessageReceived(Encoding.Default.GetString(bytesReceived, 8, bytes - 8));
+                }
+
+                bytesReceived = new Byte[4096];
             }
             if (!_socket.Connected)
                 OnDisconnect(_loginCredentials);
