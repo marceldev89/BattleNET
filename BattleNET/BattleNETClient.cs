@@ -12,6 +12,8 @@ namespace BattleNET
         public bool KeepRunning;
 
         private Socket _socket;
+
+        private DateTime commandSend;
       
         private void OnMessageReceived(string message)
         {
@@ -34,7 +36,7 @@ namespace BattleNET
 
         public EBattlEyeCommandResult SendCommand(string command)
         {
-              try
+            try
             {
                 if (!_socket.Connected)
                     return EBattlEyeCommandResult.NotConnected;
@@ -52,6 +54,8 @@ namespace BattleNET
                 header += hash;
                 packet = header + command;
                 _socket.Send(Encoding.Default.GetBytes(packet));
+
+                commandSend = DateTime.Now;
             }
             catch
             {
@@ -81,6 +85,8 @@ namespace BattleNET
                 packet = header + Helpers.HexString2Ascii("FF") + Helpers.HexString2Ascii("01") +
                          Encoding.Default.GetString(new byte[] {0}) + Helpers.EnumUtils.StringValueOf(command);
                 _socket.Send(Encoding.Default.GetBytes(packet));
+
+                commandSend = DateTime.Now;
             }
             catch
             {
@@ -90,7 +96,7 @@ namespace BattleNET
         }
 
 
-       public EBattlEyeCommandResult SendCommand(EBattlEyeCommand command, string parameters)
+        public EBattlEyeCommandResult SendCommand(EBattlEyeCommand command, string parameters)
         {
             try
             {
@@ -110,6 +116,8 @@ namespace BattleNET
                 header += hash;
                 packet = header + Helpers.HexString2Ascii("FF") + Helpers.HexString2Ascii("01") + Encoding.Default.GetString(new byte[] { 0 }) + Helpers.EnumUtils.StringValueOf(command) + parameters;
                 _socket.Send(Encoding.Default.GetBytes(packet));
+
+                commandSend = DateTime.Now;
             }
             catch
             {
@@ -145,6 +153,7 @@ namespace BattleNET
 
                     SendCommand(Helpers.HexString2Ascii("FF") + Helpers.HexString2Ascii("00") + _loginCredentials.Password);
                     new Thread(DoWork).Start();
+                    new Thread(DoMoreWork).Start();
                 }
                 catch (Exception)
                 {
@@ -176,20 +185,21 @@ namespace BattleNET
             int bufferCount = 0;
             int packetCount = 0;
 
-
             while (_socket.Connected && KeepRunning)
             {
                 bytes = _socket.Receive(bytesReceived, bytesReceived.Length, 0);
 
-                if (bytesReceived[7] == 0x00 && bytesReceived[8] == 0x01)
+                if (bytesReceived[7] == 0x00)
                 {
-                    OnMessageReceived("Logged in!");
-                    
-                }
-                else if (bytesReceived[7] == 0x00 && bytesReceived[8] == 0x00)
-                {
-                    OnMessageReceived("Login failed!");
-                    Disconnect();
+                    if (bytesReceived[8] == 0x01)
+                    {
+                        OnMessageReceived("Logged in!");
+                    }
+                    else
+                    {
+                        OnMessageReceived("Login failed!");
+                        Disconnect();
+                    }
                 }
                 else if (bytesReceived[7] == 0x02)
                 {
@@ -197,36 +207,58 @@ namespace BattleNET
                          Encoding.Default.GetString(new[] { bytesReceived[8] }));
                     OnMessageReceived(Encoding.Default.GetString(bytesReceived, 9, bytes - 9));
                 }
-                else if (bytesReceived[7] == 0x01 && bytesReceived[9] == 0x00)
-                {
-                    if (bytesReceived[11] == 0)
-                    {
-                        packetCount = bytesReceived[10];
-                    }
-
-                    if (bufferCount < packetCount)
-                    {
-                        buffer += Encoding.Default.GetString(bytesReceived, 12, bytes - 12);
-                        bufferCount++;
-                    }
-
-                    if (bufferCount == packetCount)
-                    {
-                        OnMessageReceived(buffer);
-                        buffer = null;
-                        bufferCount = 0;
-                        packetCount = 0;
-                    }
-                }
                 else if (bytesReceived[7] == 0x01)
                 {
-                    OnMessageReceived(Encoding.Default.GetString(bytesReceived, 8, bytes - 8));
+                    if (bytesReceived[7] == 0x01 && bytesReceived[9] == 0x00)
+                    {
+                        if (bytes > 9)
+                        {
+                            if (bytesReceived[11] == 0)
+                            {
+                                packetCount = bytesReceived[10];
+                            }
+
+                            if (bufferCount < packetCount)
+                            {
+                                buffer += Encoding.Default.GetString(bytesReceived, 12, bytes - 12);
+                                bufferCount++;
+                            }
+
+                            if (bufferCount == packetCount)
+                            {
+                                OnMessageReceived(buffer);
+                                buffer = null;
+                                bufferCount = 0;
+                                packetCount = 0;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        OnMessageReceived(Encoding.Default.GetString(bytesReceived, 9, bytes - 9));
+                    }
                 }
 
                 bytesReceived = new Byte[4096];
             }
             if (!_socket.Connected)
                 OnDisconnect(_loginCredentials);
+        }
+
+        private void DoMoreWork()
+        {
+            while (_socket.Connected && KeepRunning)
+            {
+                TimeSpan timeout = DateTime.Now - commandSend;
+
+                if (timeout.Seconds >= 30)
+                {
+                    SendCommand(Helpers.HexString2Ascii("FF") + Helpers.HexString2Ascii("01") + Encoding.Default.GetString(new byte[] { 0 }));
+                    //Console.WriteLine("Sending keep alive packet!");
+                }
+
+                Thread.Sleep(1000);
+            }
         }
 
         public event BattlEyeMessageEventHandler MessageReceivedEvent;
