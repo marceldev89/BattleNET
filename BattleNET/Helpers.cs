@@ -8,7 +8,7 @@ namespace BattleNET
 {
     class Helpers
     {
-        public static string HexString2Ascii(string hexString)
+        public static string HexToAscii(string hexString)
         {
             byte[] tmp;
             int j = 0;

@@ -49,7 +49,7 @@ namespace BattleNET
                                                                                                              current +
                                                                                                              b.ToString(
                                                                                                                  "X2"));
-                hash = Helpers.HexString2Ascii(hash);
+                hash = Helpers.HexToAscii(hash);
                 hash = new string(hash.ToCharArray().Reverse().ToArray());
                 header += hash;
                 packet = header + command;
@@ -73,17 +73,16 @@ namespace BattleNET
                 var crc32 = new CRC32();
                 string packet;
                 string header = "BE";
-                string hash = crc32.ComputeHash(Encoding.Default.GetBytes(Helpers.HexString2Ascii("FF") + Helpers.HexString2Ascii("01") + Encoding.Default.GetString(new byte[] { 0 }) + Helpers.EnumUtils.StringValueOf(command))).Aggregate<byte, string>(null,
+                string hash = crc32.ComputeHash(Encoding.Default.GetBytes(Helpers.HexToAscii("FF01") + Encoding.Default.GetString(new byte[] { 0 }) + Helpers.EnumUtils.StringValueOf(command))).Aggregate<byte, string>(null,
                                                                                                              (current, b)
                                                                                                              =>
                                                                                                              current +
                                                                                                              b.ToString(
                                                                                                                  "X2"));
-                hash = Helpers.HexString2Ascii(hash);
+                hash = Helpers.HexToAscii(hash);
                 hash = new string(hash.ToCharArray().Reverse().ToArray());
                 header += hash;
-                packet = header + Helpers.HexString2Ascii("FF") + Helpers.HexString2Ascii("01") +
-                         Encoding.Default.GetString(new byte[] {0}) + Helpers.EnumUtils.StringValueOf(command);
+                packet = header + Helpers.HexToAscii("FF01") + Encoding.Default.GetString(new byte[] {0}) + Helpers.EnumUtils.StringValueOf(command);
                 _socket.Send(Encoding.Default.GetBytes(packet));
 
                 commandSend = DateTime.Now;
@@ -105,16 +104,16 @@ namespace BattleNET
                 var crc32 = new CRC32();
                 string packet;
                 string header = "BE";
-                string hash = crc32.ComputeHash(Encoding.Default.GetBytes(Helpers.HexString2Ascii("FF") + Helpers.HexString2Ascii("01") + Encoding.Default.GetString(new byte[] { 0 }) + Helpers.EnumUtils.StringValueOf(command) + parameters)).Aggregate<byte, string>(null,
+                string hash = crc32.ComputeHash(Encoding.Default.GetBytes(Helpers.HexToAscii("FF01") + Encoding.Default.GetString(new byte[] { 0 }) + Helpers.EnumUtils.StringValueOf(command) + parameters)).Aggregate<byte, string>(null,
                                                                                                              (current, b)
                                                                                                              =>
                                                                                                              current +
                                                                                                              b.ToString(
                                                                                                                  "X2"));
-                hash = Helpers.HexString2Ascii(hash);
+                hash = Helpers.HexToAscii(hash);
                 hash = new string(hash.ToCharArray().Reverse().ToArray());
                 header += hash;
-                packet = header + Helpers.HexString2Ascii("FF") + Helpers.HexString2Ascii("01") + Encoding.Default.GetString(new byte[] { 0 }) + Helpers.EnumUtils.StringValueOf(command) + parameters;
+                packet = header + Helpers.HexToAscii("FF01") + Encoding.Default.GetString(new byte[] { 0 }) + Helpers.EnumUtils.StringValueOf(command) + parameters;
                 _socket.Send(Encoding.Default.GetBytes(packet));
 
                 commandSend = DateTime.Now;
@@ -151,7 +150,7 @@ namespace BattleNET
 
                     OnMessageReceived("Logging in... ");
 
-                    SendCommand(Helpers.HexString2Ascii("FF") + Helpers.HexString2Ascii("00") + _loginCredentials.Password);
+                    SendCommand(Helpers.HexToAscii("FF00") + _loginCredentials.Password);
                     new Thread(DoWork).Start();
                     new Thread(KeepAlive).Start();
                 }
@@ -203,8 +202,7 @@ namespace BattleNET
                 }
                 else if (bytesReceived[7] == 0x02)
                 {
-                    SendCommand(Helpers.HexString2Ascii("FF") + Helpers.HexString2Ascii("02") +
-                         Encoding.Default.GetString(new[] { bytesReceived[8] }));
+                    SendCommand(Helpers.HexToAscii("FF02") + Encoding.Default.GetString(new[] { bytesReceived[8] }));
                     OnMessageReceived(Encoding.Default.GetString(bytesReceived, 9, bytes - 9));
                 }
                 else if (bytesReceived[7] == 0x01)
@@ -232,6 +230,10 @@ namespace BattleNET
                                 packetCount = 0;
                             }
                         }
+                        else
+                        {
+                            // Response from server to Keep Alive packet which is of no use. :)
+                        }
                     }
                     else
                     {
@@ -253,8 +255,7 @@ namespace BattleNET
 
                 if (timeout.Seconds >= 30)
                 {
-                    SendCommand(Helpers.HexString2Ascii("FF") + Helpers.HexString2Ascii("01") + Encoding.Default.GetString(new byte[] { 0 }));
-                    //Console.WriteLine("Sending keep alive packet!");
+                    SendCommand(Helpers.HexToAscii("FF01") + Encoding.Default.GetString(new byte[] { 0 }));
                 }
 
                 Thread.Sleep(1000);
