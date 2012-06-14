@@ -153,7 +153,7 @@ namespace BattleNET
 
                     SendCommand(Helpers.HexString2Ascii("FF") + Helpers.HexString2Ascii("00") + _loginCredentials.Password);
                     new Thread(DoWork).Start();
-                    new Thread(DoMoreWork).Start();
+                    new Thread(KeepAlive).Start();
                 }
                 catch (Exception)
                 {
@@ -245,7 +245,7 @@ namespace BattleNET
                 OnDisconnect(_loginCredentials);
         }
 
-        private void DoMoreWork()
+        private void KeepAlive()
         {
             while (_socket.Connected && KeepRunning)
             {
