@@ -11,9 +11,10 @@ namespace BattleNET
     {
         private Socket _socket;
 
-        private DateTime _commandSend;
+        private DateTime _commandSend = DateTime.Now;
+        private DateTime _responseReceived = DateTime.Now;
 
-        private bool _disconnectedManually;
+        private bool _unexpectedDisconnection;
         private bool _keepRunning;
 
         private void OnMessageReceived(string message)
@@ -76,7 +77,7 @@ namespace BattleNET
                 string header = "BE";
                 string hash =
                     crc32.ComputeHash(
-                        Encoding.Default.GetBytes(Helpers.Hex2Ascii("FF01") + Encoding.Default.GetString(new byte[] {0}) +
+                        Encoding.Default.GetBytes(Helpers.Hex2Ascii("FF01") + Encoding.Default.GetString(new byte[] { 0 }) +
                                                   Helpers.StringValueOf(command))).Aggregate<byte, string>(
                                                       null,
                                                       (current, b)
@@ -87,7 +88,7 @@ namespace BattleNET
                 hash = Helpers.Hex2Ascii(hash);
                 hash = new string(hash.ToCharArray().Reverse().ToArray());
                 header += hash;
-                packet = header + Helpers.Hex2Ascii("FF01") + Encoding.Default.GetString(new byte[] {0}) +
+                packet = header + Helpers.Hex2Ascii("FF01") + Encoding.Default.GetString(new byte[] { 0 }) +
                          Helpers.StringValueOf(command);
                 _socket.Send(Encoding.Default.GetBytes(packet));
 
@@ -112,7 +113,7 @@ namespace BattleNET
                 string header = "BE";
                 string hash =
                     crc32.ComputeHash(
-                        Encoding.Default.GetBytes(Helpers.Hex2Ascii("FF01") + Encoding.Default.GetString(new byte[] {0}) +
+                        Encoding.Default.GetBytes(Helpers.Hex2Ascii("FF01") + Encoding.Default.GetString(new byte[] { 0 }) +
                                                   Helpers.StringValueOf(command) + parameters)).Aggregate
                         <byte, string>(null,
                                        (current, b)
@@ -123,7 +124,7 @@ namespace BattleNET
                 hash = Helpers.Hex2Ascii(hash);
                 hash = new string(hash.ToCharArray().Reverse().ToArray());
                 header += hash;
-                packet = header + Helpers.Hex2Ascii("FF01") + Encoding.Default.GetString(new byte[] {0}) +
+                packet = header + Helpers.Hex2Ascii("FF01") + Encoding.Default.GetString(new byte[] { 0 }) +
                          Helpers.StringValueOf(command) + parameters;
                 _socket.Send(Encoding.Default.GetBytes(packet));
 
@@ -182,16 +183,17 @@ namespace BattleNET
         {
             OnMessageReceived("Disconnecting...");
             _keepRunning = false;
-            _disconnectedManually = true;
+            _unexpectedDisconnection = false;
             if (_socket.Connected)
                 _socket.DisconnectAsync(new SocketAsyncEventArgs());
         }
 
-        private void Disconnect(bool announce)
+        private void Disconnect(bool unexpected)
         {
-            OnMessageReceived("Disconnecting...");
+            if (!unexpected)
+                OnMessageReceived("Disconnecting...");
             _keepRunning = false;
-            _disconnectedManually = announce;
+            _unexpectedDisconnection = unexpected;
             if (_socket.Connected)
                 _socket.DisconnectAsync(new SocketAsyncEventArgs());
         }
@@ -204,7 +206,7 @@ namespace BattleNET
             string buffer = null;
             int bufferCount = 0;
             int packetCount = 0;
-            _disconnectedManually = false;
+            _unexpectedDisconnection = true;
             while (_socket.Connected && _keepRunning)
             {
                 bytes = _socket.Receive(bytesReceived, bytesReceived.Length, 0);
@@ -223,7 +225,7 @@ namespace BattleNET
                 }
                 else if (bytesReceived[7] == 0x02)
                 {
-                    SendCommand(Helpers.Hex2Ascii("FF02") + Encoding.Default.GetString(new[] {bytesReceived[8]}));
+                    SendCommand(Helpers.Hex2Ascii("FF02") + Encoding.Default.GetString(new[] { bytesReceived[8] }));
                     OnMessageReceived(Encoding.Default.GetString(bytesReceived, 9, bytes - 9));
                 }
                 else if (bytesReceived[7] == 0x01)
@@ -262,21 +264,29 @@ namespace BattleNET
                     }
                 }
 
+                _responseReceived = DateTime.Now;
                 bytesReceived = new Byte[4096];
             }
             if (!_socket.Connected)
-                OnDisconnect(_loginCredentials, _disconnectedManually);
+                OnDisconnect(_loginCredentials, _unexpectedDisconnection);
         }
 
         private void KeepAlive()
         {
             while (_socket.Connected && _keepRunning)
             {
-                TimeSpan timeout = DateTime.Now - _commandSend;
+                TimeSpan timeoutClient = DateTime.Now - _commandSend;
+                TimeSpan timeoutServer = DateTime.Now - _responseReceived;
 
-                if (timeout.Seconds >= 30)
+                if (timeoutClient.TotalSeconds >= 30)
                 {
-                    SendCommand(Helpers.Hex2Ascii("FF01") + Encoding.Default.GetString(new byte[] {0}));
+                    SendCommand(Helpers.Hex2Ascii("FF01") + Encoding.Default.GetString(new byte[] { 0 }));
+                }
+
+                if (timeoutServer.TotalSeconds >= 90)
+                {
+                    Disconnect(true);
+                    Console.WriteLine("Connection lost!");
                 }
 
                 Thread.Sleep(1000);
