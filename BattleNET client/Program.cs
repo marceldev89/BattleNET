@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Threading;
 using BattleNET;
-using System.Diagnostics;
 
 namespace BattleNET_client
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             BattleEyeLoginCredentials loginCredentials = new BattleEyeLoginCredentials
                                                              {
@@ -19,12 +17,6 @@ namespace BattleNET_client
             b.MessageReceivedEvent += DumpMessage;
             b.DisconnectEvent += Disconnected;
             b.Connect();
-            //Thread.Sleep(2000);
-            //b.SendCommand(EBattlEyeCommand.Players);
-            //Thread.Sleep(2000);
-            //b.SendCommand(EBattlEyeCommand.Missions);
-            //Thread.Sleep(5000);
-            //b.Disconnect();
             Console.ReadLine();
         }
 
