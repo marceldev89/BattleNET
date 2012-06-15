@@ -9,11 +9,12 @@ namespace BattleNET
 {
     public class BattleNETClient : IBattleNET
     {
-        public bool KeepRunning;
-
         private Socket _socket;
 
-        private DateTime commandSend;
+        private DateTime _commandSend;
+
+        private bool _disconnectedManually;
+        private bool _keepRunning;
       
         private void OnMessageReceived(string message)
         {
@@ -21,10 +22,10 @@ namespace BattleNET
                 MessageReceivedEvent(new BattlEyeMessageEventArgs(message));
         }
 
-        private void OnDisconnect(BattleEyeLoginCredentials loginDetails)
+        private void OnDisconnect(BattleEyeLoginCredentials loginDetails, bool manual)
         {
             if (DisconnectEvent != null)
-                DisconnectEvent(new BattlEyeDisconnectEventArgs(loginDetails));
+                DisconnectEvent(new BattlEyeDisconnectEventArgs(loginDetails, manual));
         }
 
         private BattleEyeLoginCredentials _loginCredentials;
@@ -55,7 +56,7 @@ namespace BattleNET
                 packet = header + command;
                 _socket.Send(Encoding.Default.GetBytes(packet));
 
-                commandSend = DateTime.Now;
+                _commandSend = DateTime.Now;
             }
             catch
             {
@@ -85,7 +86,7 @@ namespace BattleNET
                 packet = header + Helpers.HexToAscii("FF01") + Encoding.Default.GetString(new byte[] {0}) + Helpers.EnumUtils.StringValueOf(command);
                 _socket.Send(Encoding.Default.GetBytes(packet));
 
-                commandSend = DateTime.Now;
+                _commandSend = DateTime.Now;
             }
             catch
             {
@@ -116,7 +117,7 @@ namespace BattleNET
                 packet = header + Helpers.HexToAscii("FF01") + Encoding.Default.GetString(new byte[] { 0 }) + Helpers.EnumUtils.StringValueOf(command) + parameters;
                 _socket.Send(Encoding.Default.GetBytes(packet));
 
-                commandSend = DateTime.Now;
+                _commandSend = DateTime.Now;
             }
             catch
             {
@@ -134,7 +135,7 @@ namespace BattleNET
         {
             try
             {
-                KeepRunning = true;
+                _keepRunning = true;
                 IPAddress ipAddress = IPAddress.Parse(_loginCredentials.Host);
                 EndPoint remoteEP = new IPEndPoint(ipAddress, _loginCredentials.Port);
 
@@ -169,7 +170,17 @@ namespace BattleNET
         public void Disconnect()
         {
             OnMessageReceived("Disconnecting...");
-            KeepRunning = false;
+            _keepRunning = false;
+            _disconnectedManually = true;
+            if (_socket.Connected)
+                _socket.DisconnectAsync(new SocketAsyncEventArgs());
+        }
+
+        private void Disconnect(bool announce)
+        {
+            OnMessageReceived("Disconnecting...");
+            _keepRunning = false;
+            _disconnectedManually = announce;
             if (_socket.Connected)
                 _socket.DisconnectAsync(new SocketAsyncEventArgs());
         }
@@ -178,13 +189,12 @@ namespace BattleNET
         {
             var bytesReceived = new Byte[4096];
             int bytes = 0;
-            bool saveString = false;
 
             string buffer = null;
             int bufferCount = 0;
             int packetCount = 0;
-
-            while (_socket.Connected && KeepRunning)
+            _disconnectedManually = false;
+            while (_socket.Connected && _keepRunning)
             {
                 bytes = _socket.Receive(bytesReceived, bytesReceived.Length, 0);
 
@@ -197,7 +207,7 @@ namespace BattleNET
                     else
                     {
                         OnMessageReceived("Login failed!");
-                        Disconnect();
+                        Disconnect(false);
                     }
                 }
                 else if (bytesReceived[7] == 0x02)
@@ -244,14 +254,14 @@ namespace BattleNET
                 bytesReceived = new Byte[4096];
             }
             if (!_socket.Connected)
-                OnDisconnect(_loginCredentials);
+                OnDisconnect(_loginCredentials, _disconnectedManually);
         }
 
         private void KeepAlive()
         {
-            while (_socket.Connected && KeepRunning)
+            while (_socket.Connected && _keepRunning)
             {
-                TimeSpan timeout = DateTime.Now - commandSend;
+                TimeSpan timeout = DateTime.Now - _commandSend;
 
                 if (timeout.Seconds >= 30)
                 {
