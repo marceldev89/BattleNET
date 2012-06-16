@@ -13,7 +13,7 @@ namespace BattleNET_client
                                                                  Port = 2402,
                                                                  Password = "arbeiten",
                                                              };
-            IBattleNET b = new BattleNETClient(loginCredentials);
+            IBattleNET b = new IBattlEyeClient(loginCredentials);
             b.MessageReceivedEvent += DumpMessage;
             b.DisconnectEvent += Disconnected;
             b.Connect();
