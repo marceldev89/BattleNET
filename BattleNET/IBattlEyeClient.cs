@@ -353,7 +353,7 @@ namespace BattleNET
 
                 if (timeoutClient.TotalSeconds >= 30)
                 {
-                    SendCommandPacket(Helpers.Hex2Ascii("FF01") + Encoding.Default.GetString(new byte[] { 0 }));
+                    SendCommandPacket(null);
                 }
 
                 if (timeoutServer.TotalSeconds >= 90)
