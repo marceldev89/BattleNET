@@ -17,7 +17,12 @@ namespace BattleNET_client
             b.MessageReceivedEvent += DumpMessage;
             b.DisconnectEvent += Disconnected;
             b.Connect();
-            Console.ReadLine();
+
+            while (true)
+            {
+                string cmd = Console.ReadLine();
+                b.SendCommandPacket(cmd);
+            }
         }
 
         private static void Disconnected(BattlEyeDisconnectEventArgs args)

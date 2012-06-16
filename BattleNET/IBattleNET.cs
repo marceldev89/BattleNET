@@ -4,9 +4,9 @@ namespace BattleNET
 {
     public interface IBattleNET
     {
-        EBattlEyeCommandResult SendCommand(string command);
-        EBattlEyeCommandResult SendCommand(EBattlEyeCommand command);
-        EBattlEyeCommandResult SendCommand(EBattlEyeCommand command, string parameters);
+        EBattlEyeCommandResult SendCommandPacket(string command);
+        EBattlEyeCommandResult SendCommandPacket(EBattlEyeCommand command);
+        EBattlEyeCommandResult SendCommandPacket(EBattlEyeCommand command, string parameters);
         bool IsConnected();
         EBattlEyeConnectionResult Connect();
         void Disconnect();

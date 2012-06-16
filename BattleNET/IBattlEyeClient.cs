@@ -36,7 +36,7 @@ namespace BattleNET
             _loginCredentials = loginCredentials;
         }
 
-        public EBattlEyeCommandResult SendCommand(string command)
+        private EBattlEyeCommandResult SendLoginPacket(string command)
         {
             try
             {
@@ -46,7 +46,7 @@ namespace BattleNET
                 var crc32 = new CRC32();
                 string packet;
                 string header = "BE";
-                string hash = crc32.ComputeHash(Encoding.Default.GetBytes(command)).Aggregate<byte, string>(null,
+                string hash = crc32.ComputeHash(Encoding.Default.GetBytes(Helpers.Hex2Ascii("FF00") + command)).Aggregate<byte, string>(null,
                                                                                                             (current, b)
                                                                                                             =>
                                                                                                             current +
@@ -55,7 +55,7 @@ namespace BattleNET
                 hash = Helpers.Hex2Ascii(hash);
                 hash = new string(hash.ToCharArray().Reverse().ToArray());
                 header += hash;
-                packet = header + command;
+                packet = header + Helpers.Hex2Ascii("FF00") + command;
                 _socket.Send(Encoding.Default.GetBytes(packet));
 
                 _commandSend = DateTime.Now;
@@ -68,7 +68,71 @@ namespace BattleNET
             return EBattlEyeCommandResult.Succes;
         }
 
-        public EBattlEyeCommandResult SendCommand(EBattlEyeCommand command)
+        private EBattlEyeCommandResult SendAcknowledgePacket(string command)
+        {
+            try
+            {
+                if (!_socket.Connected)
+                    return EBattlEyeCommandResult.NotConnected;
+
+                var crc32 = new CRC32();
+                string packet;
+                string header = "BE";
+                string hash = crc32.ComputeHash(Encoding.Default.GetBytes(Helpers.Hex2Ascii("FF02") + command)).Aggregate<byte, string>(null,
+                                                                                                            (current, b)
+                                                                                                            =>
+                                                                                                            current +
+                                                                                                            b.ToString(
+                                                                                                                "X2"));
+                hash = Helpers.Hex2Ascii(hash);
+                hash = new string(hash.ToCharArray().Reverse().ToArray());
+                header += hash;
+                packet = header + Helpers.Hex2Ascii("FF02") + command;
+                _socket.Send(Encoding.Default.GetBytes(packet));
+
+                _commandSend = DateTime.Now;
+            }
+            catch
+            {
+                return EBattlEyeCommandResult.Error;
+            }
+
+            return EBattlEyeCommandResult.Succes;
+        }
+
+        public EBattlEyeCommandResult SendCommandPacket(string command)
+        {
+            try
+            {
+                if (!_socket.Connected)
+                    return EBattlEyeCommandResult.NotConnected;
+
+                var crc32 = new CRC32();
+                string packet;
+                string header = "BE";
+                string hash = crc32.ComputeHash(Encoding.Default.GetBytes(Helpers.Hex2Ascii("FF01") + Encoding.Default.GetString(new byte[] { 0 }) + command)).Aggregate<byte, string>(null,
+                                                                                                            (current, b)
+                                                                                                            =>
+                                                                                                            current +
+                                                                                                            b.ToString(
+                                                                                                                "X2"));
+                hash = Helpers.Hex2Ascii(hash);
+                hash = new string(hash.ToCharArray().Reverse().ToArray());
+                header += hash;
+                packet = header + Helpers.Hex2Ascii("FF01") + Encoding.Default.GetString(new byte[] { 0 }) + command;
+                _socket.Send(Encoding.Default.GetBytes(packet));
+
+                _commandSend = DateTime.Now;
+            }
+            catch
+            {
+                return EBattlEyeCommandResult.Error;
+            }
+
+            return EBattlEyeCommandResult.Succes;
+        }
+
+        public EBattlEyeCommandResult SendCommandPacket(EBattlEyeCommand command)
         {
             try
             {
@@ -105,7 +169,7 @@ namespace BattleNET
         }
 
 
-        public EBattlEyeCommandResult SendCommand(EBattlEyeCommand command, string parameters)
+        public EBattlEyeCommandResult SendCommandPacket(EBattlEyeCommand command, string parameters)
         {
             try
             {
@@ -167,7 +231,8 @@ namespace BattleNET
 
                     OnMessageReceived("Logging in... ");
 
-                    SendCommand(Helpers.Hex2Ascii("FF00") + _loginCredentials.Password);
+                    //SendCommand(Helpers.Hex2Ascii("FF00") + _loginCredentials.Password);
+                    SendLoginPacket(_loginCredentials.Password);
                     new Thread(DoWork).Start();
                     new Thread(KeepAlive).Start();
                 }
@@ -233,7 +298,7 @@ namespace BattleNET
                 }
                 else if (bytesReceived[7] == 0x02)
                 {
-                    SendCommand(Helpers.Hex2Ascii("FF02") + Encoding.Default.GetString(new[] { bytesReceived[8] }));
+                    SendAcknowledgePacket(Encoding.Default.GetString(new[] { bytesReceived[8] }));
                     OnMessageReceived(Encoding.Default.GetString(bytesReceived, 9, bytes - 9));
                 }
                 else if (bytesReceived[7] == 0x01)
@@ -288,7 +353,7 @@ namespace BattleNET
 
                 if (timeoutClient.TotalSeconds >= 30)
                 {
-                    SendCommand(Helpers.Hex2Ascii("FF01") + Encoding.Default.GetString(new byte[] { 0 }));
+                    SendCommandPacket(Helpers.Hex2Ascii("FF01") + Encoding.Default.GetString(new byte[] { 0 }));
                 }
 
                 if (timeoutServer.TotalSeconds >= 90)
