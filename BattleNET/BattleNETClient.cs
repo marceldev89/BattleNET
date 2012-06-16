@@ -14,7 +14,7 @@ namespace BattleNET
         private DateTime _commandSend = DateTime.Now;
         private DateTime _responseReceived = DateTime.Now;
 
-        private bool _unexpectedDisconnection;
+        private EBattlEyeDisconnectionType _disconnectionType;
         private bool _keepRunning;
 
         private void OnMessageReceived(string message)
@@ -23,10 +23,10 @@ namespace BattleNET
                 MessageReceivedEvent(new BattlEyeMessageEventArgs(message));
         }
 
-        private void OnDisconnect(BattleEyeLoginCredentials loginDetails, bool manual)
+        private void OnDisconnect(BattleEyeLoginCredentials loginDetails, EBattlEyeDisconnectionType disconnectionType)
         {
             if (DisconnectEvent != null)
-                DisconnectEvent(new BattlEyeDisconnectEventArgs(loginDetails, manual));
+                DisconnectEvent(new BattlEyeDisconnectEventArgs(loginDetails, disconnectionType));
         }
 
         private BattleEyeLoginCredentials _loginCredentials;
@@ -42,6 +42,7 @@ namespace BattleNET
             {
                 if (!_socket.Connected)
                     return EBattlEyeCommandResult.NotConnected;
+
                 var crc32 = new CRC32();
                 string packet;
                 string header = "BE";
@@ -63,6 +64,7 @@ namespace BattleNET
             {
                 return EBattlEyeCommandResult.Error;
             }
+
             return EBattlEyeCommandResult.Succes;
         }
 
@@ -72,6 +74,7 @@ namespace BattleNET
             {
                 if (!_socket.Connected)
                     return EBattlEyeCommandResult.NotConnected;
+
                 var crc32 = new CRC32();
                 string packet;
                 string header = "BE";
@@ -91,13 +94,13 @@ namespace BattleNET
                 packet = header + Helpers.Hex2Ascii("FF01") + Encoding.Default.GetString(new byte[] { 0 }) +
                          Helpers.StringValueOf(command);
                 _socket.Send(Encoding.Default.GetBytes(packet));
-
                 _commandSend = DateTime.Now;
             }
             catch
             {
                 return EBattlEyeCommandResult.Error;
             }
+
             return EBattlEyeCommandResult.Succes;
         }
 
@@ -108,6 +111,7 @@ namespace BattleNET
             {
                 if (!_socket.Connected)
                     return EBattlEyeCommandResult.NotConnected;
+
                 var crc32 = new CRC32();
                 string packet;
                 string header = "BE";
@@ -127,13 +131,13 @@ namespace BattleNET
                 packet = header + Helpers.Hex2Ascii("FF01") + Encoding.Default.GetString(new byte[] { 0 }) +
                          Helpers.StringValueOf(command) + parameters;
                 _socket.Send(Encoding.Default.GetBytes(packet));
-
                 _commandSend = DateTime.Now;
             }
             catch
             {
                 return EBattlEyeCommandResult.Error;
             }
+
             return EBattlEyeCommandResult.Succes;
         }
 
@@ -176,6 +180,7 @@ namespace BattleNET
             {
                 return EBattlEyeConnectionResult.ParseError;
             }
+
             return EBattlEyeConnectionResult.Succes;
         }
 
@@ -183,19 +188,26 @@ namespace BattleNET
         {
             OnMessageReceived("Disconnecting...");
             _keepRunning = false;
-            _unexpectedDisconnection = false;
+            _disconnectionType = EBattlEyeDisconnectionType.Manual;
+
             if (_socket.Connected)
                 _socket.DisconnectAsync(new SocketAsyncEventArgs());
+
+            OnDisconnect(_loginCredentials, _disconnectionType);
         }
 
-        private void Disconnect(bool unexpected)
+        private void Disconnect(EBattlEyeDisconnectionType disconnectionType)
         {
-            if (!unexpected)
+            if (disconnectionType == EBattlEyeDisconnectionType.Manual)
                 OnMessageReceived("Disconnecting...");
+
             _keepRunning = false;
-            _unexpectedDisconnection = unexpected;
+            _disconnectionType = disconnectionType;
+
             if (_socket.Connected)
                 _socket.DisconnectAsync(new SocketAsyncEventArgs());
+
+            OnDisconnect(_loginCredentials, _disconnectionType);
         }
 
         private void DoWork()
@@ -206,7 +218,8 @@ namespace BattleNET
             string buffer = null;
             int bufferCount = 0;
             int packetCount = 0;
-            _unexpectedDisconnection = true;
+            _disconnectionType = EBattlEyeDisconnectionType.ConnectionLost;
+
             while (_socket.Connected && _keepRunning)
             {
                 bytes = _socket.Receive(bytesReceived, bytesReceived.Length, 0);
@@ -220,7 +233,7 @@ namespace BattleNET
                     else
                     {
                         OnMessageReceived("Login failed!");
-                        Disconnect(false);
+                        Disconnect(EBattlEyeDisconnectionType.LoginFailed);
                     }
                 }
                 else if (bytesReceived[7] == 0x02)
@@ -230,9 +243,9 @@ namespace BattleNET
                 }
                 else if (bytesReceived[7] == 0x01)
                 {
-                    if (bytesReceived[7] == 0x01 && bytesReceived[9] == 0x00)
+                    if (bytes > 9)
                     {
-                        if (bytes > 9)
+                        if (bytesReceived[7] == 0x01 && bytesReceived[9] == 0x00)
                         {
                             if (bytesReceived[11] == 0)
                             {
@@ -255,20 +268,20 @@ namespace BattleNET
                         }
                         else
                         {
-                            // Response from server to Keep Alive packet which is of no use. :)
+                            OnMessageReceived(Encoding.Default.GetString(bytesReceived, 9, bytes - 9));
                         }
                     }
                     else
                     {
-                        OnMessageReceived(Encoding.Default.GetString(bytesReceived, 9, bytes - 9));
+                        _responseReceived = DateTime.Now;
                     }
                 }
 
-                _responseReceived = DateTime.Now;
                 bytesReceived = new Byte[4096];
             }
+
             if (!_socket.Connected)
-                OnDisconnect(_loginCredentials, _unexpectedDisconnection);
+                OnDisconnect(_loginCredentials, _disconnectionType);
         }
 
         private void KeepAlive()
@@ -285,7 +298,7 @@ namespace BattleNET
 
                 if (timeoutServer.TotalSeconds >= 90)
                 {
-                    Disconnect(true);
+                    Disconnect(EBattlEyeDisconnectionType.ConnectionLost);
                     Console.WriteLine("Connection lost!");
                 }
 

@@ -48,6 +48,7 @@
     <Compile Include="EBattlEyeCommandResult.cs" />
     <Compile Include="EBattlEyeCommand.cs" />
     <Compile Include="EBattlEyeConnectionResult.cs" />
+    <Compile Include="EBattlEyeDisconnectionType.cs" />
     <Compile Include="Helpers.cs" />
     <Compile Include="IBattleNET.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

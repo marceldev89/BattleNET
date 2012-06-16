@@ -6,13 +6,13 @@ namespace BattleNET
 
     public class BattlEyeDisconnectEventArgs : EventArgs
     {
-        public BattlEyeDisconnectEventArgs(BattleEyeLoginCredentials loginDetails, bool unexpected)
+        public BattlEyeDisconnectEventArgs(BattleEyeLoginCredentials loginDetails, EBattlEyeDisconnectionType disconnectionType)
         {
             LoginDetails = loginDetails;
-            UnexpectedDisconnection = unexpected;
+            DisconnectionType = disconnectionType;
         }
 
         public BattleEyeLoginCredentials LoginDetails { get; private set; }
-        public bool UnexpectedDisconnection { get; set; }
+        public EBattlEyeDisconnectionType DisconnectionType { get; set; }
     }
 }
