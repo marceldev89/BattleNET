@@ -283,61 +283,69 @@ namespace BattleNET
 
             while (_socket.Connected && _keepRunning)
             {
-                bytes = _socket.Receive(bytesReceived, bytesReceived.Length, 0);
+                try
+                {
+                    bytes = _socket.Receive(bytesReceived, bytesReceived.Length, 0);
 
-                if (bytesReceived[7] == 0x00)
-                {
-                    if (bytesReceived[8] == 0x01)
+                    if (bytesReceived[7] == 0x00)
                     {
-                        OnMessageReceived("Logged in!");
-                    }
-                    else
-                    {
-                        Disconnect(EBattlEyeDisconnectionType.LoginFailed);
-                    }
-                }
-                else if (bytesReceived[7] == 0x02)
-                {
-                    SendAcknowledgePacket(Encoding.Default.GetString(new[] { bytesReceived[8] }));
-                    OnMessageReceived(Encoding.Default.GetString(bytesReceived, 9, bytes - 9));
-                }
-                else if (bytesReceived[7] == 0x01)
-                {
-                    if (bytes > 9)
-                    {
-                        if (bytesReceived[7] == 0x01 && bytesReceived[9] == 0x00)
+                        if (bytesReceived[8] == 0x01)
                         {
-                            if (bytesReceived[11] == 0)
+                            OnMessageReceived("Logged in!");
+                        }
+                        else
+                        {
+                            Disconnect(EBattlEyeDisconnectionType.LoginFailed);
+                        }
+                    }
+                    else if (bytesReceived[7] == 0x02)
+                    {
+                        SendAcknowledgePacket(Encoding.Default.GetString(new[] { bytesReceived[8] }));
+                        OnMessageReceived(Encoding.Default.GetString(bytesReceived, 9, bytes - 9));
+                    }
+                    else if (bytesReceived[7] == 0x01)
+                    {
+                        if (bytes > 9)
+                        {
+                            if (bytesReceived[7] == 0x01 && bytesReceived[9] == 0x00)
                             {
-                                packetCount = bytesReceived[10];
-                            }
+                                if (bytesReceived[11] == 0)
+                                {
+                                    packetCount = bytesReceived[10];
+                                }
 
-                            if (bufferCount < packetCount)
-                            {
-                                buffer += Encoding.Default.GetString(bytesReceived, 12, bytes - 12);
-                                bufferCount++;
-                            }
+                                if (bufferCount < packetCount)
+                                {
+                                    buffer += Encoding.Default.GetString(bytesReceived, 12, bytes - 12);
+                                    bufferCount++;
+                                }
 
-                            if (bufferCount == packetCount)
+                                if (bufferCount == packetCount)
+                                {
+                                    OnMessageReceived(buffer);
+                                    buffer = null;
+                                    bufferCount = 0;
+                                    packetCount = 0;
+                                }
+                            }
+                            else
                             {
-                                OnMessageReceived(buffer);
-                                buffer = null;
-                                bufferCount = 0;
-                                packetCount = 0;
+                                OnMessageReceived(Encoding.Default.GetString(bytesReceived, 9, bytes - 9));
                             }
                         }
                         else
                         {
-                            OnMessageReceived(Encoding.Default.GetString(bytesReceived, 9, bytes - 9));
+                            // Response to keep alive packet which is currently not important to us
                         }
                     }
-                    else
-                    {
-                        _responseReceived = DateTime.Now;
-                    }
-                }
 
-                bytesReceived = new Byte[4096];
+                    _responseReceived = DateTime.Now;
+                    bytesReceived = new Byte[4096];
+                }
+                catch (Exception)
+                {
+                    Disconnect(EBattlEyeDisconnectionType.SocketException);
+                }
             }
 
             if (!_socket.Connected)

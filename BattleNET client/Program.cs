@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using BattleNET;
 
 namespace BattleNET_client
@@ -7,12 +8,12 @@ namespace BattleNET_client
     {
         private static void Main(string[] args)
         {
-            BattleEyeLoginCredentials loginCredentials = new BattleEyeLoginCredentials
-                                                             {
-                                                                 Host = "109.236.85.132",
-                                                                 Port = 2402,
-                                                                 Password = "arbeiten",
-                                                             };
+            Console.Title = "BattleNET Client";
+            
+            BattleEyeLoginCredentials loginCredentials = GetLoginCredentials();
+            
+            Console.Title += string.Format(" - {0}:{1}", loginCredentials.Host, loginCredentials.Port);
+
             IBattleNET b = new IBattlEyeClient(loginCredentials);
             b.MessageReceivedEvent += DumpMessage;
             b.DisconnectEvent += Disconnected;
@@ -21,8 +22,77 @@ namespace BattleNET_client
             while (true)
             {
                 string cmd = Console.ReadLine();
-                b.SendCommandPacket(cmd);
+
+                if (cmd == "exit" || cmd == "logout")
+                {
+                    Environment.Exit(0);
+                }
+
+                if (b.IsConnected())
+                {
+                    b.SendCommandPacket(cmd);
+                }
+                else
+                {
+                    Console.WriteLine("Not connected!");
+                }
             }
+        }
+
+        private static BattleEyeLoginCredentials GetLoginCredentials()
+        {
+            string ip = "";
+            int port = 0;
+            string password = "";
+
+            do
+            {
+                IPAddress value;
+                string input;
+
+                Console.Write("Enter IP address: ");
+                input = Console.ReadLine();
+
+                if (IPAddress.TryParse(input, out value))
+                {
+                    ip = value.ToString();
+                }
+            } while (ip == "");
+
+            do
+            {
+                int value;
+                string input;
+
+                Console.Write("Enter port number: ");
+                input = Console.ReadLine();
+
+                if (int.TryParse(input, out value))
+                {
+                    port = value;
+                }
+
+            } while (port == 0);
+
+            do
+            {
+                Console.Write("Enter RCon password: ");
+                string input = Console.ReadLine();
+
+                if (input != "")
+                {
+                    password = input;
+                }
+            } while (password == "");
+
+            BattleEyeLoginCredentials loginCredentials = new BattleEyeLoginCredentials
+            {
+                Host = ip,
+                Port = port,
+                Password = password,
+            };
+
+            return loginCredentials;
         }
 
         private static void Disconnected(BattlEyeDisconnectEventArgs args)

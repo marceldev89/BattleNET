@@ -14,17 +14,17 @@ namespace BattleNET
             switch (DisconnectionType)
             {
                 case EBattlEyeDisconnectionType.ConnectionLost:
-                    Message = "Connection lost!";
+                    Message = "Disconnected! (Connection timeout)";
                     break;
 
                 case EBattlEyeDisconnectionType.LoginFailed:
-                    Message = "Failed to login!";
+                    Message = "Disconnected! (Failed to login)";
                     break;
                 case EBattlEyeDisconnectionType.Manual:
                     Message = "Disconnected!";
                     break;
                 case EBattlEyeDisconnectionType.SocketException:
-                    Message = "Socket Exception!";
+                    Message = "Disconnected! (Socket Exception)";
                     break;
             }
         }
