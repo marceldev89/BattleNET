@@ -186,7 +186,6 @@ namespace BattleNET
 
         public void Disconnect()
         {
-            OnMessageReceived("Disconnecting...");
             _keepRunning = false;
             _disconnectionType = EBattlEyeDisconnectionType.Manual;
 
@@ -198,16 +197,13 @@ namespace BattleNET
 
         private void Disconnect(EBattlEyeDisconnectionType disconnectionType)
         {
-            if (disconnectionType == EBattlEyeDisconnectionType.Manual)
-                OnMessageReceived("Disconnecting...");
-
             _keepRunning = false;
             _disconnectionType = disconnectionType;
 
             if (_socket.Connected)
                 _socket.DisconnectAsync(new SocketAsyncEventArgs());
 
-            OnDisconnect(_loginCredentials, _disconnectionType);
+            //OnDisconnect(_loginCredentials, _disconnectionType);
         }
 
         private void DoWork()
@@ -232,7 +228,6 @@ namespace BattleNET
                     }
                     else
                     {
-                        OnMessageReceived("Login failed!");
                         Disconnect(EBattlEyeDisconnectionType.LoginFailed);
                     }
                 }

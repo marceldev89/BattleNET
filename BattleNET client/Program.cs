@@ -22,7 +22,7 @@ namespace BattleNET_client
 
         private static void Disconnected(BattlEyeDisconnectEventArgs args)
         {
-            Console.WriteLine("Disconnected!");
+            Console.WriteLine(args.Message);
         }
 
         private static void DumpMessage(BattlEyeMessageEventArgs args)
