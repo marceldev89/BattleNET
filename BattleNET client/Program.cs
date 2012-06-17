@@ -14,7 +14,7 @@ namespace BattleNET_client
             
             Console.Title += string.Format(" - {0}:{1}", loginCredentials.Host, loginCredentials.Port);
 
-            IBattleNET b = new IBattlEyeClient(loginCredentials);
+            IBattleNET b = new BattlEyeClient(loginCredentials);
             b.MessageReceivedEvent += DumpMessage;
             b.DisconnectEvent += Disconnected;
             b.Connect();

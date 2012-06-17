@@ -41,7 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BattleEyeLoginCredentials.cs" />
-    <Compile Include="IBattlEyeClient.cs" />
+    <Compile Include="BattlEyeClient.cs" />
     <Compile Include="BattlEyeDisconnectEventArgs.cs" />
     <Compile Include="BattlEyeMessageEventArgs.cs" />
     <Compile Include="CRC32.cs" />

@@ -7,7 +7,7 @@ using System.Threading;
 
 namespace BattleNET
 {
-    public class IBattlEyeClient : IBattleNET
+    public class BattlEyeClient : IBattleNET
     {
         private Socket _socket;
 
@@ -31,7 +31,7 @@ namespace BattleNET
 
         private BattleEyeLoginCredentials _loginCredentials;
 
-        public IBattlEyeClient(BattleEyeLoginCredentials loginCredentials)
+        public BattlEyeClient(BattleEyeLoginCredentials loginCredentials)
         {
             _loginCredentials = loginCredentials;
         }
