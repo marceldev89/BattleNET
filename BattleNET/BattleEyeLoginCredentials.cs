@@ -1,8 +1,8 @@
 ﻿namespace BattleNET
 {
-    public struct BattlEyeLoginCredentials
+    public struct BattleEyeLoginCredentials
     {
-        public BattlEyeLoginCredentials(string host, int port, string password)
+        public BattleEyeLoginCredentials(string host, int port, string password)
             : this()
         {
             Host = host;

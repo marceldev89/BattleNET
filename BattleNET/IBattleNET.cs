@@ -10,6 +10,7 @@ namespace BattleNET
         bool IsConnected();
         EBattlEyeConnectionResult Connect();
         void Disconnect();
+        bool ReconnectOnPacketLoss(bool newSetting);
         event BattlEyeMessageEventHandler MessageReceivedEvent;
         event BattlEyeDisconnectEventHandler DisconnectEvent;
     }

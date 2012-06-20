@@ -6,7 +6,7 @@ namespace BattleNET
 
     public class BattlEyeDisconnectEventArgs : EventArgs
     {
-        public BattlEyeDisconnectEventArgs(BattlEyeLoginCredentials loginDetails, EBattlEyeDisconnectionType disconnectionType)
+        public BattlEyeDisconnectEventArgs(BattleEyeLoginCredentials loginDetails, EBattlEyeDisconnectionType disconnectionType)
         {
             LoginDetails = loginDetails;
             DisconnectionType = disconnectionType;
@@ -20,18 +20,16 @@ namespace BattleNET
                 case EBattlEyeDisconnectionType.LoginFailed:
                     Message = "Disconnected! (Failed to login)";
                     break;
-
                 case EBattlEyeDisconnectionType.Manual:
                     Message = "Disconnected!";
                     break;
-
                 case EBattlEyeDisconnectionType.SocketException:
                     Message = "Disconnected! (Socket Exception)";
                     break;
             }
         }
 
-        public BattlEyeLoginCredentials LoginDetails { get; private set; }
+        public BattleEyeLoginCredentials LoginDetails { get; private set; }
         public EBattlEyeDisconnectionType DisconnectionType { get; set; }
         public string Message { get; private set; }
     }

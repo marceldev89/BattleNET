@@ -9,14 +9,15 @@ namespace BattleNET_client
         private static void Main(string[] args)
         {
             Console.Title = "BattleNET Client";
-
-            BattlEyeLoginCredentials loginCredentials = GetLoginCredentials();
-
+            
+            BattleEyeLoginCredentials loginCredentials = GetLoginCredentials();
+            
             Console.Title += string.Format(" - {0}:{1}", loginCredentials.Host, loginCredentials.Port);
 
             IBattleNET b = new BattlEyeClient(loginCredentials);
             b.MessageReceivedEvent += DumpMessage;
             b.DisconnectEvent += Disconnected;
+            b.ReconnectOnPacketLoss(true);
             b.Connect();
 
             while (true)
@@ -39,7 +40,7 @@ namespace BattleNET_client
             }
         }
 
-        private static BattlEyeLoginCredentials GetLoginCredentials()
+        private static BattleEyeLoginCredentials GetLoginCredentials()
         {
             string ip = "";
             int port = 0;
@@ -85,7 +86,7 @@ namespace BattleNET_client
                 }
             } while (password == "");
 
-            BattlEyeLoginCredentials loginCredentials = new BattlEyeLoginCredentials
+            BattleEyeLoginCredentials loginCredentials = new BattleEyeLoginCredentials
             {
                 Host = ip,
                 Port = port,

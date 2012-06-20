@@ -15,7 +15,13 @@ namespace BattleNET
         private DateTime _responseReceived = DateTime.Now;
 
         private EBattlEyeDisconnectionType _disconnectionType;
+
+        private bool _ranBefore;
         private bool _keepRunning;
+        private bool _reconnectOnPacketLoss;
+
+        private Thread _doWork;
+        private Thread _keepAlive;
 
         private void OnMessageReceived(string message)
         {
@@ -23,15 +29,15 @@ namespace BattleNET
                 MessageReceivedEvent(new BattlEyeMessageEventArgs(message));
         }
 
-        private void OnDisconnect(BattlEyeLoginCredentials loginDetails, EBattlEyeDisconnectionType disconnectionType)
+        private void OnDisconnect(BattleEyeLoginCredentials loginDetails, EBattlEyeDisconnectionType disconnectionType)
         {
             if (DisconnectEvent != null)
                 DisconnectEvent(new BattlEyeDisconnectEventArgs(loginDetails, disconnectionType));
         }
 
-        private BattlEyeLoginCredentials _loginCredentials;
+        private BattleEyeLoginCredentials _loginCredentials;
 
-        public BattlEyeClient(BattlEyeLoginCredentials loginCredentials)
+        public BattlEyeClient(BattleEyeLoginCredentials loginCredentials)
         {
             _loginCredentials = loginCredentials;
         }
@@ -233,8 +239,16 @@ namespace BattleNET
 
                     //SendCommand(Helpers.Hex2Ascii("FF00") + _loginCredentials.Password);
                     SendLoginPacket(_loginCredentials.Password);
-                    new Thread(DoWork).Start();
-                    new Thread(KeepAlive).Start();
+                    if (_ranBefore)
+                    {
+                        _doWork.Abort();
+                        _keepAlive.Abort();
+                    }
+                    _doWork = new Thread(DoWork);
+                    _keepAlive = new Thread(KeepAlive);
+                    _doWork.Start();
+                    _keepAlive.Start();
+                    _ranBefore = true;
                 }
                 catch (Exception)
                 {
@@ -258,6 +272,12 @@ namespace BattleNET
                 _socket.DisconnectAsync(new SocketAsyncEventArgs());
 
             OnDisconnect(_loginCredentials, _disconnectionType);
+        }
+
+        public bool ReconnectOnPacketLoss(bool newSetting)
+        {
+            _reconnectOnPacketLoss = newSetting;
+            return _reconnectOnPacketLoss;
         }
 
         private void Disconnect(EBattlEyeDisconnectionType disconnectionType)
@@ -368,6 +388,8 @@ namespace BattleNET
                 {
                     Disconnect(EBattlEyeDisconnectionType.ConnectionLost);
                     Console.WriteLine("Connection lost!");
+                    if (_reconnectOnPacketLoss)
+                        Connect();
                 }
 
                 Thread.Sleep(1000);
