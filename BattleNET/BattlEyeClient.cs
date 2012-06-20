@@ -358,10 +358,6 @@ namespace BattleNET
                                 OnMessageReceived(Encoding.Default.GetString(bytesReceived, 9, bytes - 9));
                             }
                         }
-                        else
-                        {
-                            // Response to keep alive packet which is currently not important to us
-                        }
                     }
 
                     _responseReceived = DateTime.Now;
