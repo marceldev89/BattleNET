@@ -23,15 +23,15 @@ namespace BattleNET
                 MessageReceivedEvent(new BattlEyeMessageEventArgs(message));
         }
 
-        private void OnDisconnect(BattleEyeLoginCredentials loginDetails, EBattlEyeDisconnectionType disconnectionType)
+        private void OnDisconnect(BattlEyeLoginCredentials loginDetails, EBattlEyeDisconnectionType disconnectionType)
         {
             if (DisconnectEvent != null)
                 DisconnectEvent(new BattlEyeDisconnectEventArgs(loginDetails, disconnectionType));
         }
 
-        private BattleEyeLoginCredentials _loginCredentials;
+        private BattlEyeLoginCredentials _loginCredentials;
 
-        public BattlEyeClient(BattleEyeLoginCredentials loginCredentials)
+        public BattlEyeClient(BattlEyeLoginCredentials loginCredentials)
         {
             _loginCredentials = loginCredentials;
         }
