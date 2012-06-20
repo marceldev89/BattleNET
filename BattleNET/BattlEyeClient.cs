@@ -280,6 +280,11 @@ namespace BattleNET
             return _reconnectOnPacketLoss;
         }
 
+        public bool IsReconnectingOnPacketLoss
+        {
+            get { return _reconnectOnPacketLoss; }
+        }
+
         private void Disconnect(EBattlEyeDisconnectionType disconnectionType)
         {
             _keepRunning = false;
