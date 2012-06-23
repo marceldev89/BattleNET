@@ -11,8 +11,8 @@ namespace BattleNET
     {
         private Socket _socket;
 
-        private DateTime _commandSend = DateTime.Now;
-        private DateTime _responseReceived = DateTime.Now;
+        private DateTime _commandSend;
+        private DateTime _responseReceived;
 
         private EBattlEyeDisconnectionType _disconnectionType;
 
@@ -220,6 +220,9 @@ namespace BattleNET
         {
             try
             {
+                _commandSend = DateTime.Now;
+                _responseReceived = DateTime.Now;
+
                 _keepRunning = true;
                 IPAddress ipAddress = IPAddress.Parse(_loginCredentials.Host);
                 EndPoint remoteEP = new IPEndPoint(ipAddress, _loginCredentials.Port);
@@ -230,24 +233,24 @@ namespace BattleNET
                                                 _loginCredentials.Port));
 
                 try
-                {
+                {                    
                     _socket.Connect(remoteEP);
 
                     OnMessageReceived("Connected!");
 
                     OnMessageReceived("Logging in... ");
 
-                    //SendCommand(Helpers.Hex2Ascii("FF00") + _loginCredentials.Password);
                     SendLoginPacket(_loginCredentials.Password);
-                    if (_ranBefore)
+
+                    if (!_ranBefore)
                     {
-                        _doWork.Abort();
-                        _keepAlive.Abort();
+                        _keepAlive = new Thread(KeepAlive);
+                        _keepAlive.Start();
                     }
+
                     _doWork = new Thread(DoWork);
-                    _keepAlive = new Thread(KeepAlive);
                     _doWork.Start();
-                    _keepAlive.Start();
+
                     _ranBefore = true;
                 }
                 catch (Exception)
@@ -269,7 +272,10 @@ namespace BattleNET
             _disconnectionType = EBattlEyeDisconnectionType.Manual;
 
             if (_socket.Connected)
-                _socket.DisconnectAsync(new SocketAsyncEventArgs());
+            {
+                _socket.Shutdown(SocketShutdown.Both);
+                _socket.Close();
+            }
 
             OnDisconnect(_loginCredentials, _disconnectionType);
         }
@@ -291,9 +297,10 @@ namespace BattleNET
             _disconnectionType = disconnectionType;
 
             if (_socket.Connected)
-                _socket.DisconnectAsync(new SocketAsyncEventArgs());
-
-            //OnDisconnect(_loginCredentials, _disconnectionType);
+            {
+                _socket.Shutdown(SocketShutdown.Both);
+                _socket.Close();
+            }
         }
 
         private void DoWork()
@@ -365,7 +372,10 @@ namespace BattleNET
                 }
                 catch (Exception)
                 {
-                    Disconnect(EBattlEyeDisconnectionType.SocketException);
+                    if (_keepRunning)
+                    {
+                        Disconnect(EBattlEyeDisconnectionType.SocketException);
+                    }
                 }
             }
 
@@ -385,15 +395,18 @@ namespace BattleNET
                     SendCommandPacket(null);
                 }
 
-                if (timeoutServer.TotalSeconds >= 90)
+                if (timeoutServer.TotalSeconds >= 60)
                 {
                     Disconnect(EBattlEyeDisconnectionType.ConnectionLost);
-                    Console.WriteLine("Connection lost!");
+
                     if (_reconnectOnPacketLoss)
+                    {
+                        while (_doWork.IsAlive) { /* Give DoWork thread some time to finish */ }
                         Connect();
+                    }
                 }
 
-                Thread.Sleep(1000);
+                Thread.Sleep(500);
             }
         }
 
