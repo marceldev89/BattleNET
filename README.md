@@ -1,4 +1,22 @@
 BattleNET
-=========
+=========================================================
+BattlEye Protocol Library
 
-BattleEye protocol library
+Files
+
+sample.cs
+BattleNET.dll
+
+Changelog
+
+2012-06-28
+
+Complete BattlEye protocol implementation
+License
+
+Free to use and distribute.
+
+Authors
+
+Vipeax
+ziellos2k (Sawyer)
