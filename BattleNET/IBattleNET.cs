@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace BattleNET
+﻿namespace BattleNET
 {
     public interface IBattleNET
     {

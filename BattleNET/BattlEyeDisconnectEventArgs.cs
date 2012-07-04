@@ -1,4 +1,8 @@
-﻿using System;
+﻿#region
+
+using System;
+
+#endregion
 
 namespace BattleNET
 {
@@ -6,7 +10,8 @@ namespace BattleNET
 
     public class BattlEyeDisconnectEventArgs : EventArgs
     {
-        public BattlEyeDisconnectEventArgs(BattlEyeLoginCredentials loginDetails, EBattlEyeDisconnectionType disconnectionType)
+        public BattlEyeDisconnectEventArgs(BattlEyeLoginCredentials loginDetails,
+                                           EBattlEyeDisconnectionType disconnectionType)
         {
             LoginDetails = loginDetails;
             DisconnectionType = disconnectionType;
