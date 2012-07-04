@@ -2,15 +2,17 @@
 BattlEye Protocol Library
 
 #### Files ####
-sample.cs  
-BattleNET.dll  
+https://github.com/ziellos2k/BattleNET 
 
 #### Changelog ####
+2012-07-04
+* License added
+
 2012-06-28  
 * Complete BattlEye protocol implementation
 
 #### License ####
-Free to use and distribute.
+GPL
 
 #### Authors ####
 Vipeax  
