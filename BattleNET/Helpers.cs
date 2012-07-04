@@ -1,8 +1,12 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.ComponentModel;
 using System.Globalization;
 using System.Reflection;
 using System.Text;
+
+#endregion
 
 namespace BattleNET
 {

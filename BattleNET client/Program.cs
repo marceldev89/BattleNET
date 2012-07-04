@@ -1,6 +1,10 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Net;
 using BattleNET;
+
+#endregion
 
 namespace BattleNET_client
 {
@@ -9,9 +13,9 @@ namespace BattleNET_client
         private static void Main(string[] args)
         {
             Console.Title = "BattleNET Client";
-            
+
             BattlEyeLoginCredentials loginCredentials = GetLoginCredentials();
-            
+
             Console.Title += string.Format(" - {0}:{1}", loginCredentials.Host, loginCredentials.Port);
 
             IBattleNET b = new BattlEyeClient(loginCredentials);
@@ -72,7 +76,6 @@ namespace BattleNET_client
                 {
                     port = value;
                 }
-
             } while (port == 0);
 
             do
@@ -87,11 +90,11 @@ namespace BattleNET_client
             } while (password == "");
 
             BattlEyeLoginCredentials loginCredentials = new BattlEyeLoginCredentials
-            {
-                Host = ip,
-                Port = port,
-                Password = password,
-            };
+                                                            {
+                                                                Host = ip,
+                                                                Port = port,
+                                                                Password = password,
+                                                            };
 
             return loginCredentials;
         }

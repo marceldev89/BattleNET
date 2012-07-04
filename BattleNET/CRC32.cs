@@ -1,5 +1,9 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Security.Cryptography;
+
+#endregion
 
 namespace BattleNET
 {
