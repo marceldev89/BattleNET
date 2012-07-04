@@ -6,11 +6,14 @@ sample.cs
 BattleNET.dll  
 
 #### Changelog ####
+2012-07-04
+* License added
+
 2012-06-28  
 * Complete BattlEye protocol implementation
 
 #### License ####
-Free to use and distribute.
+GPL
 
 #### Authors ####
 Vipeax  
