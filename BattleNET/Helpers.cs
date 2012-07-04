@@ -29,7 +29,7 @@ namespace BattleNET
         public static string StringValueOf(Enum value)
         {
             FieldInfo fi = value.GetType().GetField(value.ToString());
-            DescriptionAttribute[] attributes =
+            var attributes =
                 (DescriptionAttribute[]) fi.GetCustomAttributes(typeof (DescriptionAttribute), false);
             if (attributes.Length > 0)
             {

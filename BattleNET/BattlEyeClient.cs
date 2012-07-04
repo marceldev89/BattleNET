@@ -305,11 +305,7 @@ namespace BattleNET
         {
             _keepRunning = false;
             _disconnectionType = disconnectionType;
-
-         //   if (_socket.Connected)
-          //      _socket.DisconnectAsync(new SocketAsyncEventArgs());
             _socket.Close();
-            //OnDisconnect(_loginCredentials, _disconnectionType);
         }
 
         private void DoWork()
