@@ -89,12 +89,12 @@ namespace BattleNET_client
                 }
             } while (password == "");
 
-            BattlEyeLoginCredentials loginCredentials = new BattlEyeLoginCredentials
-                                                            {
-                                                                Host = ip,
-                                                                Port = port,
-                                                                Password = password,
-                                                            };
+            var loginCredentials = new BattlEyeLoginCredentials
+                                       {
+                                           Host = ip,
+                                           Port = port,
+                                           Password = password,
+                                       };
 
             return loginCredentials;
         }
