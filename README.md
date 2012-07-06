@@ -6,6 +6,9 @@ sample.cs
 BattleNET.dll  
 
 #### Changelog ####
+2012-07-06
+* Fixed autoreconnect not working
+
 2012-07-04
 * License added
 
