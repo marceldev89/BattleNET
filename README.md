@@ -5,6 +5,9 @@ BattlEye Protocol Library
 https://github.com/ziellos2k/BattleNET 
 
 #### Changelog ####
+2012-07-06
+* Fixed autoreconnect not working
+
 2012-07-04
 * License added
 
