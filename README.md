@@ -21,7 +21,7 @@ BattleNET.dll
 * Complete BattlEye protocol implementation
 
 #### License ####
-GPL
+LGPL
 
 #### Authors ####
 Vipeax  
