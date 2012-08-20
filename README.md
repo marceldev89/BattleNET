@@ -20,7 +20,7 @@ https://github.com/ziellos2k/BattleNET
 * Complete BattlEye protocol implementation
 
 #### License ####
-GPL
+LGPL
 
 #### Authors ####
 Vipeax  
