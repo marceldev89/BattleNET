@@ -213,7 +213,7 @@ namespace BattleNET
 
         public bool IsConnected()
         {
-            return _socket.Connected;
+            return _socket != null && _socket.Connected;
         }
 
         public EBattlEyeConnectionResult Connect()
