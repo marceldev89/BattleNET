@@ -1,9 +1,6 @@
 # BattleNET #
 BattlEye Protocol Library
 
-#### Files ####
-https://github.com/ziellos2k/BattleNET 
-
 #### Changelog ####
 2012-08-21
 * Hackish fix for not handling very long ban files
