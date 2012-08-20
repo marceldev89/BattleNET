@@ -1,5 +1,7 @@
 [Oo]bj
-[Bb]in
+src/BattleNET/[Bb]in/
+src/BattleNET Client/[Bb]in/
+*.pdb
 *.user
 *.suo
 *.[Cc]ache

@@ -14,7 +14,13 @@ namespace BattleNET_client
         {
             Console.Title = "BattleNET Client";
 
-            BattlEyeLoginCredentials loginCredentials = GetLoginCredentials();
+            //BattlEyeLoginCredentials loginCredentials = GetLoginCredentials();
+            BattlEyeLoginCredentials loginCredentials = new BattlEyeLoginCredentials
+            {
+                Host = "31.25.103.105",
+                Port = 2302,
+                Password = "arbeiten"
+            };
 
             Console.Title += string.Format(" - {0}:{1}", loginCredentials.Host, loginCredentials.Port);
 
