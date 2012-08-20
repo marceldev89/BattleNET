@@ -241,9 +241,8 @@ namespace BattleNET
 
                     OnMessageReceived("Logging in... ");
 
-                    if(SendLoginPacket(_loginCredentials.Password) == EBattlEyeCommandResult.Error)
-                        return EBattleEyeConnectionResult.ConnectionFailed
-                        //Or better yet, EBattleEyeConnectionResult.AuthenticationFailed
+                    if (SendLoginPacket(_loginCredentials.Password) == EBattlEyeCommandResult.Error)
+                        return EBattlEyeConnectionResult.ConnectionFailed;
 
                     if (!_ranBefore)
                     {
