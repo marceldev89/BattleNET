@@ -1,6 +1,7 @@
 [Oo]bj
 src/BattleNET/[Bb]in/
 src/BattleNET Client/[Bb]in/
+*.vshost.exe*
 *.pdb
 *.user
 *.suo
