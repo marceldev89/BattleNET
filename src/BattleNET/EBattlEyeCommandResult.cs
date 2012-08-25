@@ -2,7 +2,7 @@
 {
     public enum EBattlEyeCommandResult
     {
-        Succes,
+        Success,
         Error,
         NotConnected,
     }

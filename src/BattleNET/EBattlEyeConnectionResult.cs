@@ -2,7 +2,7 @@
 {
     public enum EBattlEyeConnectionResult
     {
-        Succes,
+        Success,
         ParseError,
         ConnectionFailed,
     }

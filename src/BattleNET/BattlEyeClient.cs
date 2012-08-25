@@ -71,7 +71,7 @@ namespace BattleNET
                 return EBattlEyeCommandResult.Error;
             }
 
-            return EBattlEyeCommandResult.Succes;
+            return EBattlEyeCommandResult.Success;
         }
 
         private EBattlEyeCommandResult SendAcknowledgePacket(string command)
@@ -103,7 +103,7 @@ namespace BattleNET
                 return EBattlEyeCommandResult.Error;
             }
 
-            return EBattlEyeCommandResult.Succes;
+            return EBattlEyeCommandResult.Success;
         }
 
         public EBattlEyeCommandResult SendCommandPacket(string command)
@@ -135,7 +135,7 @@ namespace BattleNET
                 return EBattlEyeCommandResult.Error;
             }
 
-            return EBattlEyeCommandResult.Succes;
+            return EBattlEyeCommandResult.Success;
         }
 
         public EBattlEyeCommandResult SendCommandPacket(EBattlEyeCommand command)
@@ -171,7 +171,7 @@ namespace BattleNET
                 return EBattlEyeCommandResult.Error;
             }
 
-            return EBattlEyeCommandResult.Succes;
+            return EBattlEyeCommandResult.Success;
         }
 
 
@@ -208,7 +208,7 @@ namespace BattleNET
                 return EBattlEyeCommandResult.Error;
             }
 
-            return EBattlEyeCommandResult.Succes;
+            return EBattlEyeCommandResult.Success;
         }
 
         public bool IsConnected()
@@ -265,7 +265,7 @@ namespace BattleNET
                 return EBattlEyeConnectionResult.ParseError;
             }
 
-            return EBattlEyeConnectionResult.Succes;
+            return EBattlEyeConnectionResult.Success;
         }
 
         public void Disconnect()
