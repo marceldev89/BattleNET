@@ -174,7 +174,6 @@ namespace BattleNET
             return EBattlEyeCommandResult.Success;
         }
 
-
         public EBattlEyeCommandResult SendCommandPacket(EBattlEyeCommand command, string parameters)
         {
             try
