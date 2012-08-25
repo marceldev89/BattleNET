@@ -228,7 +228,7 @@ namespace BattleNET
                 EndPoint remoteEP = new IPEndPoint(ipAddress, _loginCredentials.Port);
 
                 _socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-                _socket.ReceiveBufferSize = Int32.MaxValue;
+                _socket.ReceiveBufferSize = UInt16.MaxValue;
 
                 OnMessageReceived(string.Format("Connecting to {0}:{1}... ", _loginCredentials.Host,
                                                 _loginCredentials.Port));
