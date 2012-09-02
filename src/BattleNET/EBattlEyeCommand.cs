@@ -23,5 +23,8 @@ namespace BattleNET
         [Description("#exec ban ")] ExecBan,
         [Description("#lock ")] Lock,
         [Description("#unlock")] Unlock,
+        [Description("loadBans")] loadBans,
+        [Description("loadScripts")] loadScripts,
+        [Description("loadEvents")] loadEvents
     }
 }
