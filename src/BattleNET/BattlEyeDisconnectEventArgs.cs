@@ -25,11 +25,17 @@ namespace BattleNET
                 case EBattlEyeDisconnectionType.LoginFailed:
                     Message = "Disconnected! (Failed to login)";
                     break;
+
                 case EBattlEyeDisconnectionType.Manual:
                     Message = "Disconnected!";
                     break;
+
                 case EBattlEyeDisconnectionType.SocketException:
                     Message = "Disconnected! (Socket Exception)";
+                    break;
+
+                case EBattlEyeDisconnectionType.ConnectionFailed:
+                    Message = "Connection failed!";
                     break;
             }
         }

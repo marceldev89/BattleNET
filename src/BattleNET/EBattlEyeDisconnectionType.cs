@@ -5,6 +5,7 @@
         Manual,
         ConnectionLost,
         SocketException,
-        LoginFailed
+        LoginFailed,
+        ConnectionFailed
     }
 }

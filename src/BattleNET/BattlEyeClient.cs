@@ -236,23 +236,47 @@ namespace BattleNET
                 {                    
                     _socket.Connect(remoteEP);
 
-                    OnMessageReceived("Connected!");
-
-                    OnMessageReceived("Logging in... ");
-
                     if (SendLoginPacket(_loginCredentials.Password) == EBattlEyeCommandResult.Error)
                         return EBattlEyeConnectionResult.ConnectionFailed;
 
-                    if (!_ranBefore)
+                    _socket.ReceiveTimeout = 1000;
+
+                    var bytesReceived = new Byte[4096];
+                    int bytes = 0;
+
+                    try
                     {
-                        _keepAlive = new Thread(KeepAlive);
-                        _keepAlive.Start();
+                        bytes = _socket.Receive(bytesReceived, bytesReceived.Length, 0);
+
+                        if (bytesReceived[7] == 0x00)
+                        {
+                            if (bytesReceived[8] == 0x01)
+                            {
+                                OnMessageReceived("Connected!");
+
+                                _socket.ReceiveTimeout = 0;
+
+                                if (!_ranBefore)
+                                {
+                                    _keepAlive = new Thread(KeepAlive);
+                                    _keepAlive.Start();
+                                }
+
+                                _doWork = new Thread(DoWork);
+                                _doWork.Start();
+
+                                _ranBefore = true;
+                            }
+                            else
+                            {
+                                Disconnect(EBattlEyeDisconnectionType.LoginFailed);
+                            }
+                        }
                     }
-
-                    _doWork = new Thread(DoWork);
-                    _doWork.Start();
-
-                    _ranBefore = true;
+                    catch (Exception)
+                    {
+                        Disconnect(EBattlEyeDisconnectionType.ConnectionFailed);
+                    }
                 }
                 catch (Exception)
                 {
@@ -302,6 +326,8 @@ namespace BattleNET
                 _socket.Shutdown(SocketShutdown.Both);
                 _socket.Close();
             }
+
+            OnDisconnect(_loginCredentials, _disconnectionType);
         }
 
         private void DoWork()
@@ -320,18 +346,7 @@ namespace BattleNET
                 {
                     bytes = _socket.Receive(bytesReceived, bytesReceived.Length, 0);
 
-                    if (bytesReceived[7] == 0x00)
-                    {
-                        if (bytesReceived[8] == 0x01)
-                        {
-                            OnMessageReceived("Logged in!");
-                        }
-                        else
-                        {
-                            Disconnect(EBattlEyeDisconnectionType.LoginFailed);
-                        }
-                    }
-                    else if (bytesReceived[7] == 0x02)
+                    if (bytesReceived[7] == 0x02)
                     {
                         SendAcknowledgePacket(Helpers.Bytes2String(new[] { bytesReceived[8] }));
                         OnMessageReceived(Helpers.Bytes2String(bytesReceived, 9, bytes - 9));
