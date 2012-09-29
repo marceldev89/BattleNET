@@ -239,7 +239,7 @@ namespace BattleNET
                     if (SendLoginPacket(_loginCredentials.Password) == EBattlEyeCommandResult.Error)
                         return EBattlEyeConnectionResult.ConnectionFailed;
 
-                    _socket.ReceiveTimeout = 1000;
+                    _socket.ReceiveTimeout = 5000;
 
                     var bytesReceived = new Byte[4096];
                     int bytes = 0;
