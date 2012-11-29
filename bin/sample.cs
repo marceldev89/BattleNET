@@ -11,7 +11,7 @@ private static void Main(string[] args)
 	};
 
 	// Create new BattlEyeClient instance
-	IBattleNET b = new BattlEyeClient(loginCredentials);
+	BattlEyeClient b = new BattlEyeClient(loginCredentials);
 
 	// Event triggered by BattlEye server messages
 	b.MessageReceivedEvent += HandleMessage;
