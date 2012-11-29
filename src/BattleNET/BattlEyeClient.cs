@@ -7,7 +7,7 @@ using System.Threading;
 
 namespace BattleNET
 {
-    public class BattlEyeClient : IBattleNET
+    public class BattlEyeClient
     {
         private Socket _socket;
 
