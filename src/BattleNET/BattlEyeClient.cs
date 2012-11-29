@@ -16,12 +16,10 @@ namespace BattleNET
 
         private EBattlEyeDisconnectionType _disconnectionType;
 
-        private bool _ranBefore;
         private bool _keepRunning;
         private bool _reconnectOnPacketLoss;
 
         private Thread _doWork;
-        private Thread _keepAlive;
 
         private void OnMessageReceived(string message)
         {
@@ -228,6 +226,7 @@ namespace BattleNET
 
                 _socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
                 _socket.ReceiveBufferSize = UInt16.MaxValue;
+                _socket.ReceiveTimeout = 5000;
 
                 OnMessageReceived(string.Format("Connecting to {0}:{1}... ", _loginCredentials.Host,
                                                 _loginCredentials.Port));
@@ -238,8 +237,6 @@ namespace BattleNET
 
                     if (SendLoginPacket(_loginCredentials.Password) == EBattlEyeCommandResult.Error)
                         return EBattlEyeConnectionResult.ConnectionFailed;
-
-                    _socket.ReceiveTimeout = 5000;
 
                     var bytesReceived = new Byte[4096];
                     int bytes = 0;
@@ -254,18 +251,8 @@ namespace BattleNET
                             {
                                 OnMessageReceived("Connected!");
 
-                                _socket.ReceiveTimeout = 0;
-
-                                if (!_ranBefore)
-                                {
-                                    _keepAlive = new Thread(KeepAlive);
-                                    _keepAlive.Start();
-                                }
-
                                 _doWork = new Thread(DoWork);
                                 _doWork.Start();
-
-                                _ranBefore = true;
                             }
                             else
                             {
@@ -393,41 +380,39 @@ namespace BattleNET
                 }
                 catch (Exception)
                 {
-                    if (_keepRunning)
+                    TimeSpan timeoutClient = DateTime.Now - _commandSend;
+                    TimeSpan timeoutServer = DateTime.Now - _responseReceived;
+
+                    if (timeoutClient.TotalSeconds >= 5)
                     {
-                        Disconnect(EBattlEyeDisconnectionType.SocketException);
+                        if (timeoutServer.TotalSeconds >= 20)
+                        {
+                            Disconnect(EBattlEyeDisconnectionType.ConnectionLost);
+                            _keepRunning = true;
+                        }
+                        else
+                        {
+                            SendCommandPacket(null);
+                        }
                     }
                 }
+                
             }
 
             if (!_socket.Connected)
-                OnDisconnect(_loginCredentials, _disconnectionType);
-        }
-
-        private void KeepAlive()
-        {
-            while (_socket.Connected && _keepRunning)
             {
-                TimeSpan timeoutClient = DateTime.Now - _commandSend;
-                TimeSpan timeoutServer = DateTime.Now - _responseReceived;
-
-                if (timeoutClient.TotalSeconds >= 15)
+                if (_reconnectOnPacketLoss && _keepRunning)
                 {
-                    SendCommandPacket(null);
+                    Connect();
                 }
-
-                if (timeoutServer.TotalSeconds >= 45)
+                else if (!_keepRunning)
                 {
-                    Disconnect(EBattlEyeDisconnectionType.ConnectionLost);
-
-                    if (_reconnectOnPacketLoss)
-                    {
-                        while (_doWork.IsAlive) { Thread.Sleep(250); }
-                        Connect();
-                    }
+                    // let the thread finish without further action
                 }
-
-                Thread.Sleep(500);
+                else
+                {
+                    OnDisconnect(_loginCredentials, _disconnectionType);
+                }
             }
         }
 
