@@ -13,10 +13,43 @@ namespace BattleNET_client
     {
         private static void Main(string[] args)
         {
+            BattlEyeLoginCredentials loginCredentials;
+            string command = "";
+
             Console.OutputEncoding = Encoding.UTF8;
             Console.Title = "BattleNET Client";
 
-            BattlEyeLoginCredentials loginCredentials = GetLoginCredentials();
+            if (args.Length > 0)
+            {
+                loginCredentials = GetLoginCredentials(args);
+
+                for (int i = 0; i < args.Length; i++)
+                {
+                    if (args[i] == "-command")
+                    {
+                        try
+                        {
+                            command = args[i + 1];
+                        }
+                        catch
+                        {
+                            Console.WriteLine("No command given!");
+                            loginCredentials.Host = null;
+                        }
+                    }
+                }
+
+                if (loginCredentials.Host == null || loginCredentials.Port == 0 || loginCredentials.Password == "")
+                {
+                    Console.Read();
+                    Environment.Exit(0);
+                }
+            }
+            else
+            {
+
+                loginCredentials = GetLoginCredentials();
+            }
 
             Console.Title += string.Format(" - {0}:{1}", loginCredentials.Host, loginCredentials.Port);
 
@@ -26,24 +59,87 @@ namespace BattleNET_client
             b.ReconnectOnPacketLoss(true);
             b.Connect();
 
-            while (true)
+            if (command != "")
             {
-                string cmd = Console.ReadLine();
+                b.SendCommandPacket(command);
+            }
+            else
+            {
+                while (true)
+                {
+                    string cmd = Console.ReadLine();
 
-                if (cmd == "exit" || cmd == "logout")
-                {
-                    Environment.Exit(0);
-                }
+                    if (cmd == "exit" || cmd == "logout")
+                    {
+                        break;
+                    }
 
-                if (b.IsConnected())
-                {
-                    b.SendCommandPacket(cmd);
-                }
-                else
-                {
-                    Console.WriteLine("Not connected!");
+                    if (b.IsConnected())
+                    {
+                        b.SendCommandPacket(cmd);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Not connected!");
+                    }
                 }
             }
+
+            b.Disconnect();
+        }
+
+        private static BattlEyeLoginCredentials GetLoginCredentials(string[] args)
+        {
+            BattlEyeLoginCredentials loginCredentials = new BattlEyeLoginCredentials();
+
+            for (int i = 0; i < args.Length; i++)
+            {
+                switch (args[i])
+                {
+                    case "-host":
+                        {
+                            IPAddress value;
+                            if (IPAddress.TryParse(args[i + 1], out value))
+                            {
+                                loginCredentials.Host = value.ToString();
+                            }
+                            else
+                            {
+                                Console.WriteLine("No valid host given!", args[i + 1]);
+                            }
+                            break;
+                        }
+
+                    case "-port":
+                        {
+                            int value;
+                            if (int.TryParse(args[i + 1], out value))
+                            {
+                                loginCredentials.Port = value;
+                            }
+                            else
+                            {
+                                Console.WriteLine("No valid port given!", args[i + 1]);
+                            }
+                            break;
+                        }
+
+                    case "-password":
+                        {
+                            if (args[i + 1] != "")
+                            {
+                                loginCredentials.Password = args[i + 1];
+                            }
+                            else
+                            {
+                                Console.WriteLine("No password given!");
+                            }
+                            break;
+                        }
+                }
+            }
+
+            return loginCredentials;
         }
 
         private static BattlEyeLoginCredentials GetLoginCredentials()
