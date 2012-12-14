@@ -27,7 +27,10 @@ namespace BattleNET
 
         public int CommandQueue
         {
-            get { return _packetLog.Count; }
+            get 
+            {
+                return _packetLog.Count;
+            }
         }
 
         private void OnMessageReceived(string message)
@@ -113,7 +116,7 @@ namespace BattleNET
             return EBattlEyeCommandResult.Success;
         }
 
-        public EBattlEyeCommandResult SendCommandPacket(string command)
+        public EBattlEyeCommandResult SendCommandPacket(string command, bool log = true)
         {
             try
             {
@@ -135,8 +138,12 @@ namespace BattleNET
                 packet = header + Helpers.Hex2Ascii("FF01") + Helpers.Bytes2String(new byte[] { (byte)_packetNumber }) + command;
                 _socket.Send(Helpers.String2Bytes(packet));
                 _commandSend = DateTime.Now;
-                _packetLog.Add(_packetNumber, packet);
-                _packetNumber++;
+
+                if (log)
+                {
+                    _packetLog.Add(_packetNumber, packet);
+                    _packetNumber++;
+                }
             }
             catch
             {
@@ -413,20 +420,20 @@ namespace BattleNET
                         }
                         else
                         {
-                            if (_packetLog.Count > 0)
+                            if (_packetLog.Count == 0)
                             {
-                                int key = _packetLog.First().Key;
-                                SendCommandPacket(_packetLog[key]);
-                                _packetLog.Remove(key);
-                            }
-                            else
-                            {
-                                SendCommandPacket(null);
+                                SendCommandPacket(null, false);
                             }
                         }
                     }
                 }
-                
+
+                if (_packetLog.Count > 0)
+                {
+                    int key = _packetLog.First().Key;
+                    SendCommandPacket(_packetLog[key]);
+                    _packetLog.Remove(key);
+                }                
             }
 
             if (!_socket.Connected)
