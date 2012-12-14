@@ -102,7 +102,7 @@ namespace BattleNET_client
                             IPAddress value;
                             if (IPAddress.TryParse(args[i + 1], out value))
                             {
-                                loginCredentials.Host = value.ToString();
+                                loginCredentials.Host = value;
                             }
                             else
                             {
@@ -145,7 +145,7 @@ namespace BattleNET_client
 
         private static BattlEyeLoginCredentials GetLoginCredentials()
         {
-            string ip = "";
+            IPAddress ip = null;
             int port = 0;
             string password = "";
 
@@ -159,9 +159,9 @@ namespace BattleNET_client
 
                 if (IPAddress.TryParse(input, out value))
                 {
-                    ip = value.ToString();
+                    ip = value;
                 }
-            } while (ip == "");
+            } while (ip == null);
 
             do
             {
