@@ -147,6 +147,7 @@ namespace BattleNET
             return EBattlEyeCommandResult.Success;
         }
 
+        [System.Obsolete("Marked for removal, please use BattlEyeClient.SendCommandPacket(string command)")]
         public EBattlEyeCommandResult SendCommandPacket(EBattlEyeCommand command)
         {
             try
@@ -183,6 +184,7 @@ namespace BattleNET
             return EBattlEyeCommandResult.Success;
         }
 
+        [System.Obsolete("Marked for removal, please use BattlEyeClient.SendCommandPacket(string command)")]
         public EBattlEyeCommandResult SendCommandPacket(EBattlEyeCommand command, string parameters)
         {
             try
