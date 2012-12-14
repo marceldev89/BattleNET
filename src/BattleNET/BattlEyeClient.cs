@@ -134,7 +134,6 @@ namespace BattleNET
                 header += hash;
                 packet = header + Helpers.Hex2Ascii("FF01") + Helpers.Bytes2String(new byte[] { (byte)_packetNumber }) + command;
                 _socket.Send(Helpers.String2Bytes(packet));
-
                 _commandSend = DateTime.Now;
                 _packetLog.Add(_packetNumber, packet);
                 _packetNumber++;
@@ -160,7 +159,7 @@ namespace BattleNET
                 string header = "BE";
                 string hash =
                     crc32.ComputeHash(
-                        Helpers.String2Bytes(Helpers.Hex2Ascii("FF01") + Helpers.Bytes2String(new byte[] { 0 }) +
+                        Helpers.String2Bytes(Helpers.Hex2Ascii("FF01") + Helpers.Bytes2String(new byte[] { (byte)_packetNumber }) +
                                                   Helpers.StringValueOf(command))).Aggregate<byte, string>(
                                                       null,
                                                       (current, b)
@@ -171,10 +170,12 @@ namespace BattleNET
                 hash = Helpers.Hex2Ascii(hash);
                 hash = new string(hash.ToCharArray().Reverse().ToArray());
                 header += hash;
-                packet = header + Helpers.Hex2Ascii("FF01") + Helpers.Bytes2String(new byte[] { 0 }) +
+                packet = header + Helpers.Hex2Ascii("FF01") + Helpers.Bytes2String(new byte[] { (byte)_packetNumber }) +
                          Helpers.StringValueOf(command);
                 _socket.Send(Helpers.String2Bytes(packet));
                 _commandSend = DateTime.Now;
+                _packetLog.Add(_packetNumber, packet);
+                _packetNumber++;
             }
             catch
             {
@@ -197,7 +198,7 @@ namespace BattleNET
                 string header = "BE";
                 string hash =
                     crc32.ComputeHash(
-                        Helpers.String2Bytes(Helpers.Hex2Ascii("FF01") + Helpers.Bytes2String(new byte[] { 0 }) +
+                        Helpers.String2Bytes(Helpers.Hex2Ascii("FF01") + Helpers.Bytes2String(new byte[] { (byte)_packetNumber }) +
                                                   Helpers.StringValueOf(command) + parameters)).Aggregate
                         <byte, string>(null,
                                        (current, b)
@@ -208,10 +209,12 @@ namespace BattleNET
                 hash = Helpers.Hex2Ascii(hash);
                 hash = new string(hash.ToCharArray().Reverse().ToArray());
                 header += hash;
-                packet = header + Helpers.Hex2Ascii("FF01") + Helpers.Bytes2String(new byte[] { 0 }) +
+                packet = header + Helpers.Hex2Ascii("FF01") + Helpers.Bytes2String(new byte[] { (byte)_packetNumber }) +
                          Helpers.StringValueOf(command) + parameters;
                 _socket.Send(Helpers.String2Bytes(packet));
                 _commandSend = DateTime.Now;
+                _packetLog.Add(_packetNumber, packet);
+                _packetNumber++;
             }
             catch
             {
