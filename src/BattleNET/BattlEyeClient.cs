@@ -247,7 +247,7 @@ namespace BattleNET
                 _packetLog = new SortedDictionary<int, string>();
 
                 _keepRunning = true;
-                IPAddress ipAddress = _loginCredentials.Host;
+                IPAddress ipAddress = IPAddress.Parse(_loginCredentials.Host);
                 EndPoint remoteEP = new IPEndPoint(ipAddress, _loginCredentials.Port);
 
                 _socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
