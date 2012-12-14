@@ -62,6 +62,7 @@ namespace BattleNET_client
             if (command != "")
             {
                 b.SendCommandPacket(command);
+                while (b.CommandQueue > 0) { /* wait until server received packet */ };
             }
             else
             {

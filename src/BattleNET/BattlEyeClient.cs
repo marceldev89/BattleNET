@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -20,6 +21,14 @@ namespace BattleNET
         private bool _reconnectOnPacketLoss;
 
         private Thread _doWork;
+
+        private int _packetNumber;
+        private SortedDictionary<int, string> _packetLog;
+
+        public int CommandQueue
+        {
+            get { return _packetLog.Count; }
+        }
 
         private void OnMessageReceived(string message)
         {
@@ -114,7 +123,7 @@ namespace BattleNET
                 var crc32 = new CRC32();
                 string packet;
                 string header = "BE";
-                string hash = crc32.ComputeHash(Helpers.String2Bytes(Helpers.Hex2Ascii("FF01") + Helpers.Bytes2String(new byte[] { 0 }) + command)).Aggregate<byte, string>(null,
+                string hash = crc32.ComputeHash(Helpers.String2Bytes(Helpers.Hex2Ascii("FF01") + Helpers.Bytes2String(new byte[] { (byte)_packetNumber }) + command)).Aggregate<byte, string>(null,
                                                                                                             (current, b)
                                                                                                             =>
                                                                                                             current +
@@ -123,10 +132,12 @@ namespace BattleNET
                 hash = Helpers.Hex2Ascii(hash);
                 hash = new string(hash.ToCharArray().Reverse().ToArray());
                 header += hash;
-                packet = header + Helpers.Hex2Ascii("FF01") + Helpers.Bytes2String(new byte[] { 0 }) + command;
+                packet = header + Helpers.Hex2Ascii("FF01") + Helpers.Bytes2String(new byte[] { (byte)_packetNumber }) + command;
                 _socket.Send(Helpers.String2Bytes(packet));
 
                 _commandSend = DateTime.Now;
+                _packetLog.Add(_packetNumber, packet);
+                _packetNumber++;
             }
             catch
             {
@@ -219,6 +230,9 @@ namespace BattleNET
             {
                 _commandSend = DateTime.Now;
                 _responseReceived = DateTime.Now;
+
+                _packetNumber = 0;
+                _packetLog = new SortedDictionary<int, string>();
 
                 _keepRunning = true;
                 IPAddress ipAddress = IPAddress.Parse(_loginCredentials.Host);
@@ -373,6 +387,8 @@ namespace BattleNET
                                 OnMessageReceived(Helpers.Bytes2String(bytesReceived, 9, bytes - 9));
                             }
                         }
+
+                        _packetLog.Remove(bytesReceived[8]);
                     }
 
                     _responseReceived = DateTime.Now;
@@ -392,7 +408,16 @@ namespace BattleNET
                         }
                         else
                         {
-                            SendCommandPacket(null);
+                            if (_packetLog.Count > 0)
+                            {
+                                int key = _packetLog.First().Key;
+                                SendCommandPacket(_packetLog[key]);
+                                _packetLog.Remove(key);
+                            }
+                            else
+                            {
+                                SendCommandPacket(null);
+                            }
                         }
                     }
                 }
