@@ -8,6 +8,14 @@ using System.Threading;
 
 namespace BattleNET
 {
+    public class StateObject
+    {
+        public Socket workSocket = null;
+        public const int BufferSize = 4096;
+        public byte[] buffer = new byte[BufferSize];
+        public StringBuilder sb = new StringBuilder();
+    }
+
     public class BattlEyeClient
     {
         private Socket _socket;
@@ -24,6 +32,8 @@ namespace BattleNET
 
         private int _packetNumber;
         private SortedDictionary<int, string> _packetLog;
+
+        private static ManualResetEvent receiveDone = new ManualResetEvent(false);
 
         public int CommandQueue
         {
@@ -357,54 +367,59 @@ namespace BattleNET
             {
                 try
                 {
-                    bytes = _socket.Receive(bytesReceived, bytesReceived.Length, 0);
+                    //bytes = _socket.Receive(bytesReceived, bytesReceived.Length, 0);
 
-                    if (bytesReceived[7] == 0x02)
-                    {
-                        SendAcknowledgePacket(Helpers.Bytes2String(new[] { bytesReceived[8] }));
-                        OnMessageReceived(Helpers.Bytes2String(bytesReceived, 9, bytes - 9));
-                    }
-                    else if (bytesReceived[7] == 0x01)
-                    {
-                        if (bytes > 9)
-                        {
-                            if (bytesReceived[7] == 0x01 && bytesReceived[9] == 0x00)
-                            {
-                                if (bytesReceived[11] == 0)
-                                {
-                                    packetCount = bytesReceived[10];
-                                }
+                    //if (bytesReceived[7] == 0x02)
+                    //{
+                    //    SendAcknowledgePacket(Helpers.Bytes2String(new[] { bytesReceived[8] }));
+                    //    OnMessageReceived(Helpers.Bytes2String(bytesReceived, 9, bytes - 9));
+                    //}
+                    //else if (bytesReceived[7] == 0x01)
+                    //{
+                    //    if (bytes > 9)
+                    //    {
+                    //        if (bytesReceived[7] == 0x01 && bytesReceived[9] == 0x00)
+                    //        {
+                    //            if (bytesReceived[11] == 0)
+                    //            {
+                    //                packetCount = bytesReceived[10];
+                    //            }
 
-                                if (bufferCount < packetCount)
-                                {
-                                    buffer += Helpers.Bytes2String(bytesReceived, 12, bytes - 12);
-                                    bufferCount++;
-                                }
+                    //            if (bufferCount < packetCount)
+                    //            {
+                    //                buffer += Helpers.Bytes2String(bytesReceived, 12, bytes - 12);
+                    //                bufferCount++;
+                    //            }
 
-                                if (bufferCount == packetCount)
-                                {
-                                    OnMessageReceived(buffer);
-                                    buffer = null;
-                                    bufferCount = 0;
-                                    packetCount = 0;
-                                }
-                            }
-                            else
-                            {
-                                // Temporary fix to avoid infinite loops with multi-packet server messages
-                                buffer = null;
-                                bufferCount = 0;
-                                packetCount = 0;
+                    //            if (bufferCount == packetCount)
+                    //            {
+                    //                OnMessageReceived(buffer);
+                    //                buffer = null;
+                    //                bufferCount = 0;
+                    //                packetCount = 0;
+                    //            }
+                    //        }
+                    //        else
+                    //        {
+                    //            // Temporary fix to avoid infinite loops with multi-packet server messages
+                    //            buffer = null;
+                    //            bufferCount = 0;
+                    //            packetCount = 0;
 
-                                OnMessageReceived(Helpers.Bytes2String(bytesReceived, 9, bytes - 9));
-                            }
-                        }
+                    //            OnMessageReceived(Helpers.Bytes2String(bytesReceived, 9, bytes - 9));
+                    //        }
+                    //    }
 
-                        _packetLog.Remove(bytesReceived[8]);
-                    }
+                    //    _packetLog.Remove(bytesReceived[8]);
+                    //}
 
-                    _responseReceived = DateTime.Now;
-                    bytesReceived = new Byte[4096];
+                    //_responseReceived = DateTime.Now;
+                    //bytesReceived = new Byte[4096];
+                    StateObject state = new StateObject();
+                    state.workSocket = _socket;
+
+                    _socket.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallback), state);
+                    receiveDone.WaitOne();
                 }
                 catch (Exception)
                 {
@@ -450,6 +465,72 @@ namespace BattleNET
                 {
                     OnDisconnect(_loginCredentials, _disconnectionType);
                 }
+            }
+        }
+
+        private void ReceiveCallback(IAsyncResult ar)
+        {
+            StateObject state = (StateObject)ar.AsyncState;
+            Socket client = state.workSocket;
+
+            string buffer = null;
+            int bufferCount = 0;
+            int packetCount = 0;
+
+            int bytesRead = _socket.EndReceive(ar);
+
+            if (bytesRead > 0)
+            {
+                if (state.buffer[7] == 0x02)
+                {
+                    SendAcknowledgePacket(Helpers.Bytes2String(new[] { state.buffer[8] }));
+                    OnMessageReceived(Helpers.Bytes2String(state.buffer, 9, bytesRead - 9));
+                }
+                else if (state.buffer[7] == 0x01)
+                {
+                    if (bytesRead > 9)
+                    {
+                        if (state.buffer[7] == 0x01 && state.buffer[9] == 0x00)
+                        {
+                            if (state.buffer[11] == 0)
+                            {
+                                packetCount = state.buffer[10];
+                            }
+
+                            if (bufferCount < packetCount)
+                            {
+                                //buffer += Helpers.Bytes2String(state.buffer, 12, bytesRead - 12);
+                                state.sb.Append(Helpers.Bytes2String(state.buffer, 12, bytesRead - 12));
+                                bufferCount++;
+                            }
+
+                            if (bufferCount == packetCount)
+                            {
+                                OnMessageReceived(state.sb.ToString());
+                                buffer = null;
+                                bufferCount = 0;
+                                packetCount = 0;
+                            }
+                        }
+                        else
+                        {
+                            // Temporary fix to avoid infinite loops with multi-packet server messages
+                            buffer = null;
+                            bufferCount = 0;
+                            packetCount = 0;
+
+                            OnMessageReceived(Helpers.Bytes2String(state.buffer, 9, bytesRead - 9));
+                        }
+                    }
+
+                    _packetLog.Remove(state.buffer[8]);
+                }
+
+                _socket.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallback), state);
+            }
+            else
+            {
+                receiveDone.Set();
             }
         }
 
