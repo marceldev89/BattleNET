@@ -215,8 +215,7 @@ namespace BattleNET
             return EBattlEyeCommandResult.Success;
         }
 
-        [System.Obsolete("Marked for removal, please use BattlEyeClient.SendCommandPacket(string command)")]
-        public EBattlEyeCommandResult SendCommandPacket(EBattlEyeCommand command)
+        public EBattlEyeCommandResult SendCommandPacket(EBattlEyeCommand command, string parameters = "")
         {
             try
             {
@@ -240,46 +239,7 @@ namespace BattleNET
                 hash = new string(hash.ToCharArray().Reverse().ToArray());
                 header += hash;
                 packet = header + Helpers.Hex2Ascii("FF01") + Helpers.Bytes2String(new byte[] { (byte)_packetNumber }) +
-                         Helpers.StringValueOf(command);
-                _socket.Send(Helpers.String2Bytes(packet));
-                _commandSend = DateTime.Now;
-                _packetLog.Add(_packetNumber, packet);
-                _packetNumber++;
-            }
-            catch
-            {
-                return EBattlEyeCommandResult.Error;
-            }
-
-            return EBattlEyeCommandResult.Success;
-        }
-
-        [System.Obsolete("Marked for removal, please use BattlEyeClient.SendCommandPacket(string command)")]
-        public EBattlEyeCommandResult SendCommandPacket(EBattlEyeCommand command, string parameters)
-        {
-            try
-            {
-                if (!_socket.Connected)
-                    return EBattlEyeCommandResult.NotConnected;
-
-                var crc32 = new CRC32();
-                string packet;
-                string header = "BE";
-                string hash =
-                    crc32.ComputeHash(
-                        Helpers.String2Bytes(Helpers.Hex2Ascii("FF01") + Helpers.Bytes2String(new byte[] { (byte)_packetNumber }) +
-                                                  Helpers.StringValueOf(command) + parameters)).Aggregate
-                        <byte, string>(null,
-                                       (current, b)
-                                       =>
-                                       current +
-                                       b.ToString(
-                                           "X2"));
-                hash = Helpers.Hex2Ascii(hash);
-                hash = new string(hash.ToCharArray().Reverse().ToArray());
-                header += hash;
-                packet = header + Helpers.Hex2Ascii("FF01") + Helpers.Bytes2String(new byte[] { (byte)_packetNumber }) +
-                         Helpers.StringValueOf(command) + parameters;
+                    Helpers.StringValueOf(command) + ((parameters != "") ? parameters : "");
                 _socket.Send(Helpers.String2Bytes(packet));
                 _commandSend = DateTime.Now;
                 _packetLog.Add(_packetNumber, packet);
