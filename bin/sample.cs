@@ -1,4 +1,5 @@
 using System;
+using BattleNET;
 
 private static void Main(string[] args)
 {
