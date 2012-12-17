@@ -105,7 +105,7 @@ namespace BattleNET
                     }
                 }
             }
-            catch (Exception)
+            catch
             {
                 Disconnect(EBattlEyeDisconnectionType.ConnectionFailed);
                 return EBattlEyeConnectionResult.ConnectionFailed;
@@ -331,10 +331,17 @@ namespace BattleNET
 
                     if (_packetLog.Count > 0 && _socket.Available == 0)
                     {
-                        int key = _packetLog.First().Key;
-                        string value = _packetLog[key];
-                        SendCommandPacket(value, false);
-                        _packetLog.Remove(key);
+                        try
+                        {
+                            int key = _packetLog.First().Key;
+                            string value = _packetLog[key];
+                            SendCommandPacket(value, false);
+                            _packetLog.Remove(key);
+                        }
+                        catch
+                        {
+                            // Prevent possible crash when packet is received at the same moment it's trying to resend it.
+                        }
                     }
 
                     Thread.Sleep(500);
@@ -415,7 +422,7 @@ namespace BattleNET
 
                 client.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallback), state);
             }
-            catch (Exception)
+            catch
             {
                 // do nothing
             }
