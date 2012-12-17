@@ -203,7 +203,7 @@ namespace BattleNET
 
                 if (log)
                 {
-                    _packetLog.Add(_packetNumber, packet);
+                    _packetLog.Add(_packetNumber, command);
                     _packetNumber++;
                 }
             }
@@ -242,7 +242,8 @@ namespace BattleNET
                     Helpers.StringValueOf(command) + ((parameters != "") ? parameters : "");
                 _socket.Send(Helpers.String2Bytes(packet));
                 _commandSend = DateTime.Now;
-                _packetLog.Add(_packetNumber, packet);
+
+                _packetLog.Add(_packetNumber, Helpers.StringValueOf(command) + ((parameters != "") ? parameters : ""));
                 _packetNumber++;
             }
             catch
