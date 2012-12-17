@@ -63,6 +63,57 @@ namespace BattleNET
             _loginCredentials = loginCredentials;
         }
 
+        public EBattlEyeConnectionResult Connect()
+        {
+            _commandSend = DateTime.Now;
+            _responseReceived = DateTime.Now;
+
+            _packetNumber = 0;
+            _packetLog = new SortedDictionary<int, string>();
+
+            _keepRunning = true;
+            IPAddress ipAddress = IPAddress.Parse(_loginCredentials.Host);
+            EndPoint remoteEP = new IPEndPoint(ipAddress, _loginCredentials.Port);
+
+            _socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            _socket.ReceiveBufferSize = UInt16.MaxValue;
+
+            OnMessageReceived(string.Format("Connecting to {0}:{1}... ", _loginCredentials.Host, _loginCredentials.Port));
+
+            try
+            {
+                _socket.Connect(remoteEP);
+
+                if (SendLoginPacket(_loginCredentials.Password) == EBattlEyeCommandResult.Error)
+                    return EBattlEyeConnectionResult.ConnectionFailed;
+
+                var bytesReceived = new Byte[4096];
+                int bytes = 0;
+
+                bytes = _socket.Receive(bytesReceived, bytesReceived.Length, 0);
+
+                if (bytesReceived[7] == 0x00)
+                {
+                    if (bytesReceived[8] == 0x01)
+                    {
+                        OnMessageReceived("Connected!");
+
+                        Receive();
+                    }
+                    else
+                    {
+                        Disconnect(EBattlEyeDisconnectionType.LoginFailed);
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                return EBattlEyeConnectionResult.ConnectionFailed;
+            }
+
+            return EBattlEyeConnectionResult.Success;
+        }
+
         private EBattlEyeCommandResult SendLoginPacket(string command)
         {
             try
@@ -247,77 +298,24 @@ namespace BattleNET
             return _socket != null && _socket.Connected;
         }
 
-        public EBattlEyeConnectionResult Connect()
-        {
-            try
-            {
-                _commandSend = DateTime.Now;
-                _responseReceived = DateTime.Now;
-
-                _packetNumber = 0;
-                _packetLog = new SortedDictionary<int, string>();
-
-                _keepRunning = true;
-                IPAddress ipAddress = IPAddress.Parse(_loginCredentials.Host);
-                EndPoint remoteEP = new IPEndPoint(ipAddress, _loginCredentials.Port);
-
-                _socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-                _socket.ReceiveBufferSize = UInt16.MaxValue;
-                _socket.ReceiveTimeout = 5000;
-
-                OnMessageReceived(string.Format("Connecting to {0}:{1}... ", _loginCredentials.Host,
-                                                _loginCredentials.Port));
-
-                try
-                {                    
-                    _socket.Connect(remoteEP);
-
-                    if (SendLoginPacket(_loginCredentials.Password) == EBattlEyeCommandResult.Error)
-                        return EBattlEyeConnectionResult.ConnectionFailed;
-
-                    var bytesReceived = new Byte[4096];
-                    int bytes = 0;
-
-                    try
-                    {
-                        bytes = _socket.Receive(bytesReceived, bytesReceived.Length, 0);
-
-                        if (bytesReceived[7] == 0x00)
-                        {
-                            if (bytesReceived[8] == 0x01)
-                            {
-                                OnMessageReceived("Connected!");
-
-                                Receive();
-                            }
-                            else
-                            {
-                                Disconnect(EBattlEyeDisconnectionType.LoginFailed);
-                            }
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        Disconnect(EBattlEyeDisconnectionType.ConnectionFailed);
-                    }
-                }
-                catch (Exception)
-                {
-                    return EBattlEyeConnectionResult.ConnectionFailed;
-                }
-            }
-            catch (Exception)
-            {
-                return EBattlEyeConnectionResult.ParseError;
-            }
-
-            return EBattlEyeConnectionResult.Success;
-        }
-
         public void Disconnect()
         {
             _keepRunning = false;
             _disconnectionType = EBattlEyeDisconnectionType.Manual;
+
+            if (_socket.Connected)
+            {
+                _socket.Shutdown(SocketShutdown.Both);
+                _socket.Close();
+            }
+
+            OnDisconnect(_loginCredentials, _disconnectionType);
+        }
+
+        private void Disconnect(EBattlEyeDisconnectionType disconnectionType)
+        {
+            _keepRunning = false;
+            _disconnectionType = disconnectionType;
 
             if (_socket.Connected)
             {
@@ -337,20 +335,6 @@ namespace BattleNET
         public bool IsReconnectingOnPacketLoss
         {
             get { return _reconnectOnPacketLoss; }
-        }
-
-        private void Disconnect(EBattlEyeDisconnectionType disconnectionType)
-        {
-            _keepRunning = false;
-            _disconnectionType = disconnectionType;
-
-            if (_socket.Connected)
-            {
-                _socket.Shutdown(SocketShutdown.Both);
-                _socket.Close();
-            }
-
-            OnDisconnect(_loginCredentials, _disconnectionType);
         }
 
         private void Receive()
