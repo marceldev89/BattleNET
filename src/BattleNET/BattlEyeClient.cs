@@ -5,7 +5,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using System.Diagnostics;
 
 namespace BattleNET
 {
@@ -15,7 +14,6 @@ namespace BattleNET
         public const int BufferSize = 4096;
         public byte[] buffer = new byte[BufferSize];
         public StringBuilder sb = new StringBuilder();
-        public int packetsDone = 0;
         public int packetsTodo = 0;
     }
 
@@ -77,6 +75,7 @@ namespace BattleNET
 
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
             _socket.ReceiveBufferSize = UInt16.MaxValue;
+            _socket.ReceiveTimeout = 5000;
 
             OnMessageReceived(string.Format("Connecting to {0}:{1}... ", _loginCredentials.Host, _loginCredentials.Port));
 
@@ -108,6 +107,7 @@ namespace BattleNET
             }
             catch (Exception)
             {
+                Disconnect(EBattlEyeDisconnectionType.ConnectionFailed);
                 return EBattlEyeConnectionResult.ConnectionFailed;
             }
 
@@ -329,10 +329,11 @@ namespace BattleNET
                         }
                     }
 
-                    if (_packetLog.Count > 0)
+                    if (_packetLog.Count > 0 && _socket.Available == 0)
                     {
                         int key = _packetLog.First().Key;
-                        SendCommandPacket(_packetLog[key]);
+                        string value = _packetLog[key];
+                        SendCommandPacket(value, false);
                         _packetLog.Remove(key);
                     }
 
@@ -382,38 +383,39 @@ namespace BattleNET
                                 state.packetsTodo = state.buffer[10];
                             }
 
-                            if (state.packetsDone < state.packetsTodo)
+                            if (state.packetsTodo > 0)
                             {
                                 state.sb.Append(Helpers.Bytes2String(state.buffer, 12, bytesRead - 12));
-                                state.packetsDone++;
+                                state.packetsTodo--;
                             }
 
-                            if (state.packetsDone == state.packetsTodo)
+                            if (state.packetsTodo == 0)
                             {
                                 OnMessageReceived(state.sb.ToString());
                                 state.sb = new StringBuilder();
-                                state.packetsDone = 0;
                                 state.packetsTodo = 0;
+
+                                _packetLog.Remove(state.buffer[8]);
                             }
                         }
                         else
                         {
                             // Temporary fix to avoid infinite loops with multi-packet server messages
                             state.sb = new StringBuilder();
-                            state.packetsDone = 0;
                             state.packetsTodo = 0;
 
                             OnMessageReceived(Helpers.Bytes2String(state.buffer, 9, bytesRead - 9));
+
+                            _packetLog.Remove(state.buffer[8]);
                         }
                     }
-
-                    _packetLog.Remove(state.buffer[8]);
                 }
 
                 _responseReceived = DateTime.Now;
+
                 client.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallback), state);
             }
-            catch
+            catch (Exception)
             {
                 // do nothing
             }
