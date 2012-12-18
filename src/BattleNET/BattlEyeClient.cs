@@ -24,7 +24,7 @@ namespace BattleNET
         private DateTime _commandSend;
         private DateTime _responseReceived;
 
-        private EBattlEyeDisconnectionType _disconnectionType;
+        private EBattlEyeDisconnectionType? _disconnectionType;
 
         private bool _keepRunning;
         private bool _reconnectOnPacketLoss;
@@ -107,8 +107,16 @@ namespace BattleNET
             }
             catch
             {
-                Disconnect(EBattlEyeDisconnectionType.ConnectionFailed);
-                return EBattlEyeConnectionResult.ConnectionFailed;
+                if (_disconnectionType == EBattlEyeDisconnectionType.ConnectionLost)
+                {
+                    Disconnect(EBattlEyeDisconnectionType.ConnectionLost);
+                    Connect();
+                }
+                else
+                {
+                    Disconnect(EBattlEyeDisconnectionType.ConnectionFailed);
+                    return EBattlEyeConnectionResult.ConnectionFailed;
+                }
             }
 
             return EBattlEyeConnectionResult.Success;
@@ -262,7 +270,6 @@ namespace BattleNET
         public void Disconnect()
         {
             _keepRunning = false;
-            _disconnectionType = EBattlEyeDisconnectionType.Manual;
 
             if (_socket.Connected)
             {
@@ -270,13 +277,15 @@ namespace BattleNET
                 _socket.Close();
             }
 
-            OnDisconnect(_loginCredentials, _disconnectionType);
+            OnDisconnect(_loginCredentials, EBattlEyeDisconnectionType.Manual);
         }
 
         private void Disconnect(EBattlEyeDisconnectionType disconnectionType)
         {
+            if (disconnectionType == EBattlEyeDisconnectionType.ConnectionLost)
+                _disconnectionType = EBattlEyeDisconnectionType.ConnectionLost;
+
             _keepRunning = false;
-            _disconnectionType = disconnectionType;
 
             if (_socket.Connected)
             {
@@ -284,7 +293,7 @@ namespace BattleNET
                 _socket.Close();
             }
 
-            OnDisconnect(_loginCredentials, _disconnectionType);
+            OnDisconnect(_loginCredentials, disconnectionType);
         }
 
         public bool ReconnectOnPacketLoss(bool newSetting)
@@ -303,9 +312,9 @@ namespace BattleNET
             StateObject state = new StateObject();
             state.workSocket = _socket;
 
-            _socket.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallback), state);
+            _disconnectionType = null;
 
-            _disconnectionType = EBattlEyeDisconnectionType.ConnectionLost;
+            _socket.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallback), state);
 
             new Thread(delegate() {
                 while (_socket.Connected && _keepRunning)
@@ -359,7 +368,7 @@ namespace BattleNET
                     }
                     else
                     {
-                        OnDisconnect(_loginCredentials, _disconnectionType);
+                        OnDisconnect(_loginCredentials, EBattlEyeDisconnectionType.ConnectionLost);
                     }
                 }
             }).Start();
