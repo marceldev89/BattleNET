@@ -1,6 +1,9 @@
 # BattleNET #
 BattlEye Protocol Library and Client
 
+**master**:  stable  
+**develop**: unstable  
+
 #### BattleNET Library ####
 
 BattleNET is a C# (.NET) library for the [BattlEye](http://www.battleye.com/) protocol. 
