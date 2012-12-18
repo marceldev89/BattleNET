@@ -75,7 +75,7 @@ BattleNET client.exe -host 127.0.0.1 -port 2302 -password 123456789 -command "sa
 
 #### Changelog ####
 20121217.1
-* Library didn't reconnect on packetloss
+* Library didn't reconnect on connection loss
 
 20121217
 * Updated predifined commands
