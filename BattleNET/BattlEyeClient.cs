@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Diagnostics;
 
 namespace BattleNET
 {
@@ -410,8 +411,6 @@ namespace BattleNET
                                 OnMessageReceived(state.sb.ToString());
                                 state.sb = new StringBuilder();
                                 state.packetsTodo = 0;
-
-                                _packetLog.Remove(state.buffer[8]);
                             }
                         }
                         else
@@ -421,9 +420,12 @@ namespace BattleNET
                             state.packetsTodo = 0;
 
                             OnMessageReceived(Helpers.Bytes2String(state.buffer, 9, bytesRead - 9));
-
-                            _packetLog.Remove(state.buffer[8]);
                         }
+                    }
+
+                    if (_packetLog.ContainsKey(state.buffer[8]))
+                    {
+                        _packetLog.Remove(state.buffer[8]);
                     }
                 }
 
