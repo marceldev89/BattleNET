@@ -237,7 +237,7 @@ namespace BattleNET
                 string hash =
                     crc32.ComputeHash(
                         Helpers.String2Bytes(Helpers.Hex2Ascii("FF01") + Helpers.Bytes2String(new byte[] { (byte)_packetNumber }) +
-                                                  Helpers.StringValueOf(command))).Aggregate<byte, string>(
+                                                  Helpers.StringValueOf(command) + ((parameters != "") ? parameters : ""))).Aggregate<byte, string>(
                                                       null,
                                                       (current, b)
                                                       =>

@@ -81,7 +81,7 @@ namespace BattleNET
         Players,
 
         /// <summary>
-        /// Say [player#] - Say something to player #. specially -1 equals all players on server (e.g. 'Say -1 Hello World').
+        /// Say [player#] [msg] - Say something to player #. specially -1 equals all players on server (e.g. 'Say -1 Hello World').
         /// </summary>
         [Description("Say ")]
         Say,
