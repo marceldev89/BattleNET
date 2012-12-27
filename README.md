@@ -11,7 +11,7 @@ AUTHORS.txt         - BattleNET authors
 BattleNET.sln       - BattleNET solution
 CHANGELOG.txt       - Changes made to BattleNET
 COPYING.txt         - The LGPL license
-README.md          - This file
+README.md           - This file
 ```
 
 #### BattleNET client ####
