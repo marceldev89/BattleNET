@@ -14,3 +14,4 @@ BattleNET Client/[Bb]in/
 _ReSharper.*
 *.resharper
 Ankh.NoLoad
+release.bat
