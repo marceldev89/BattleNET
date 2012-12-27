@@ -1,4 +1,5 @@
 v1.1
+ * Different method to construct packets
  * Some fixes and cleanups
  * Did licensing the right way
 
