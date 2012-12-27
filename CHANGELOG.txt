@@ -1,4 +1,5 @@
 v1.1
+ * Some fixes and cleanups
  * Did licensing the right way
 
 v1.0.2
