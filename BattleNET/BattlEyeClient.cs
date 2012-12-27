@@ -1,11 +1,17 @@
-﻿using System;
+﻿/*
+ * BattleNET v1.1 - BattlEye Library and Client
+ * 
+ *  Copyright (C) 2012 by it's authors.
+ *  Some rights reserverd. See COPYING.TXT, AUTHORS.TXT.
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using System.Diagnostics;
 
 namespace BattleNET
 {

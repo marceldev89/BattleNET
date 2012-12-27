@@ -1,12 +1,15 @@
-﻿#region
+﻿/*
+ * BattleNET v1.1 - BattlEye Library and Client
+ * 
+ *  Copyright (C) 2012 by it's authors.
+ *  Some rights reserverd. See COPYING.TXT, AUTHORS.TXT.
+ */
 
 using System;
 using System.ComponentModel;
 using System.Globalization;
 using System.Reflection;
 using System.Text;
-
-#endregion
 
 namespace BattleNET
 {

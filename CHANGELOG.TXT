@@ -1,0 +1,39 @@
+v1.1
+ * Did licensing the right way
+
+v1.0.2
+ * Fixed predefined commands, they now work actually. :)
+
+v1.0.1
+ * Fixed a bug where the lib would send the 'say' command twice
+
+v1.0
+ * Started using proper version numbers... :)
+
+20121217.1
+ * Library didn't reconnect on connection loss
+
+20121217
+ * Updated predifined commands
+ * Timeout values decreased for faster connection drop detection
+ * UTF8 support
+ * Better handling of dropped packets (client -> server)
+ * Packet receiving is now asynchronous
+ * Some other fixes and cleanups
+ * Client now accepts command line arguments
+
+20120821
+ * Hackish fix for not handling very long ban files
+
+20120717
+ * Decreased keep alive packet interval and timeout timer
+ * Changed Encoding.Default to Encoding.GetEncoding(1252) as Default is variable across systems (also makes it compatible with Linux/mono)
+
+20120706
+ * Fixed autoreconnect not working
+
+20120704
+ * License added
+
+20120628
+ * Complete BattlEye protocol implementation
