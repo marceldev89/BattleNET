@@ -45,10 +45,10 @@
     <Compile Include="BattlEyeDisconnectEventArgs.cs" />
     <Compile Include="BattlEyeMessageEventArgs.cs" />
     <Compile Include="CRC32.cs" />
-    <Compile Include="EBattlEyeCommandResult.cs" />
-    <Compile Include="EBattlEyeCommand.cs" />
-    <Compile Include="EBattlEyeConnectionResult.cs" />
-    <Compile Include="EBattlEyeDisconnectionType.cs" />
+    <Compile Include="BattlEyeCommandResult.cs" />
+    <Compile Include="BattlEyeCommand.cs" />
+    <Compile Include="BattlEyeConnectionResult.cs" />
+    <Compile Include="BattlEyeDisconnectionType.cs" />
     <Compile Include="Helpers.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

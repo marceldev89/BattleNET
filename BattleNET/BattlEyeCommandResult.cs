@@ -7,7 +7,7 @@
 
 namespace BattleNET
 {
-    public enum EBattlEyeCommandResult
+    public enum BattlEyeCommandResult
     {
         Success,
         Error,

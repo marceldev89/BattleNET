@@ -25,7 +25,7 @@ namespace BattleNET
     public class BattlEyeDisconnectEventArgs : EventArgs
     {
         public BattlEyeDisconnectEventArgs(BattlEyeLoginCredentials loginDetails,
-                                           EBattlEyeDisconnectionType disconnectionType)
+                                           BattlEyeDisconnectionType disconnectionType)
         {
             LoginDetails = loginDetails;
             DisconnectionType = disconnectionType;
@@ -33,7 +33,7 @@ namespace BattleNET
         }
 
         public BattlEyeLoginCredentials LoginDetails { get; private set; }
-        public EBattlEyeDisconnectionType DisconnectionType { get; private set; }
+        public BattlEyeDisconnectionType DisconnectionType { get; private set; }
         public string Message { get; private set; }
     }
 }

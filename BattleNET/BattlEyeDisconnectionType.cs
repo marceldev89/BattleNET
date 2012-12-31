@@ -9,7 +9,7 @@ using System.ComponentModel;
 
 namespace BattleNET
 {
-    public enum EBattlEyeDisconnectionType
+    public enum BattlEyeDisconnectionType
     {
         [Description("Disconnected!")]
         Manual,

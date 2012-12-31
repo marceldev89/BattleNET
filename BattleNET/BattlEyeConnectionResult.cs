@@ -7,7 +7,7 @@
 
 namespace BattleNET
 {
-    public enum EBattlEyeConnectionResult
+    public enum BattlEyeConnectionResult
     {
         Success,
         ParseError,

@@ -9,7 +9,7 @@ using System.ComponentModel;
 
 namespace BattleNET
 {
-    public enum EBattlEyeCommand
+    public enum BattlEyeCommand
     {        
         /// <summary>
         /// #init - Reload server config file loaded by –config option.
