@@ -1,4 +1,5 @@
 v1.2
+ * Changed ReconnectOnPacketLoss and IsConnected to properties
  * Separated system messages from BattlEye messages (Connected, Disconnected, etc)
 
 v1.1
