@@ -14,18 +14,21 @@ namespace BattleNET
 
     public class BattlEyeConnectEventArgs : EventArgs
     {
-        public BattlEyeConnectEventArgs(BattlEyeLoginCredentials loginDetails)
+        public BattlEyeConnectEventArgs(BattlEyeLoginCredentials loginDetails, BattlEyeConnectionResult connectionResult)
         {
             LoginDetails = loginDetails;
+            ConnectionResult = connectionResult;
+            Message = Helpers.StringValueOf(connectionResult);
         }
 
         public BattlEyeLoginCredentials LoginDetails { get; private set; }
+        public BattlEyeConnectionResult ConnectionResult { get; private set; }
+        public string Message { get; private set; }
     }
     
     public class BattlEyeDisconnectEventArgs : EventArgs
     {
-        public BattlEyeDisconnectEventArgs(BattlEyeLoginCredentials loginDetails,
-                                           BattlEyeDisconnectionType disconnectionType)
+        public BattlEyeDisconnectEventArgs(BattlEyeLoginCredentials loginDetails, BattlEyeDisconnectionType? disconnectionType)
         {
             LoginDetails = loginDetails;
             DisconnectionType = disconnectionType;
@@ -33,7 +36,7 @@ namespace BattleNET
         }
 
         public BattlEyeLoginCredentials LoginDetails { get; private set; }
-        public BattlEyeDisconnectionType DisconnectionType { get; private set; }
+        public BattlEyeDisconnectionType? DisconnectionType { get; private set; }
         public string Message { get; private set; }
     }
 }

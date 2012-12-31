@@ -19,11 +19,5 @@ namespace BattleNET
 
         [Description("Disconnected! (Socket Exception)")]
         SocketException,
-
-        [Description("Disconnected! (Failed to login)")]
-        LoginFailed,
-
-        [Description("Connection failed!")]
-        ConnectionFailed
     }
 }

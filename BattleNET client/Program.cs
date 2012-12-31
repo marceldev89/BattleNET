@@ -55,9 +55,9 @@ namespace BattleNET_client
             Console.Title = string.Format("BattleNET client v1.2 - {0}:{1}", loginCredentials.Host, loginCredentials.Port);
 
             BattlEyeClient b = new BattlEyeClient(loginCredentials);
-            b.MessageEvent += BattlEyeMessage;
-            b.ConnectedEvent += Connected;
-            b.DisconnectedEvent += Disconnected;
+            b.MessageEvent += Message;
+            b.ConnectEvent += Connect;
+            b.DisconnectEvent += Disconnect;
             b.ReconnectOnPacketLoss = true;
             b.Connect();
 
@@ -83,7 +83,7 @@ namespace BattleNET_client
                     }
                     else
                     {
-                        Console.WriteLine("Not connected!");
+                        Environment.Exit(0);
                     }
                 }
             }
@@ -91,17 +91,17 @@ namespace BattleNET_client
             b.Disconnect();
         }
 
-        private static void Connected(BattlEyeConnectEventArgs args)
-        {
-            Console.WriteLine("Connected to {0}:{1}...", args.LoginDetails.Host, args.LoginDetails.Port);
-        }
-
-        private static void Disconnected(BattlEyeDisconnectEventArgs args)
+        private static void Connect(BattlEyeConnectEventArgs args)
         {
             Console.WriteLine(args.Message);
         }
 
-        private static void BattlEyeMessage(BattlEyeMessageEventArgs args)
+        private static void Disconnect(BattlEyeDisconnectEventArgs args)
+        {
+            Console.WriteLine(args.Message);
+        }
+
+        private static void Message(BattlEyeMessageEventArgs args)
         {
             Console.WriteLine(args.Message);
         }
