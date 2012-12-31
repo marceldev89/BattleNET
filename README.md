@@ -57,9 +57,9 @@ private static void Main(string[] args)
 	};
 
 	BattlEyeClient b = new BattlEyeClient(loginCredentials);
-	b.SystemMessageReceived += SystemMessage;
-	b.BattlEyeMessageReceived += BattlEyeMessage;
-	b.DisconnectEvent += HandleDisconnect;
+	b.MessageEvent += BattlEyeMessage;
+	b.ConnectedEvent += Connected;
+	b.DisconnectedEvent += Disconnected;
 	b.ReconnectOnPacketLoss = true;
 	b.Connect();
 	
@@ -73,17 +73,17 @@ private static void Main(string[] args)
 	b.Disconnect();
 }
 
-private static void Disconnected(BattlEyeDisconnectEventArgs args)
+private static void Connected(BattlEyeConnectEventArgs args)
 {
-	// Disconnected event
+	Console.WriteLine("Connected to {0}:{1}...", args.LoginDetails.Host, args.LoginDetails.Port);
 }
 
-private static void BattlEyeMessage(BattlEyeMessageEventArgs args)
+private static void Disconnected(BattlEyeDisconnectEventArgs args)
 {
 	Console.WriteLine(args.Message);
 }
 
-private static void SystemMessage(SystemMessageEventArgs args)
+private static void BattlEyeMessage(BattlEyeMessageEventArgs args)
 {
 	Console.WriteLine(args.Message);
 }

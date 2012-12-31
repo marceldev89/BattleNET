@@ -1,6 +1,7 @@
 v1.2
+ * New connected event available, fires when RCon login was successful
  * Changed ReconnectOnPacketLoss and IsConnected to properties
- * Separated system messages from BattlEye messages (Connected, Disconnected, etc)
+ * Removed system messages (Connected, Disconnected, etc) from library
 
 v1.1
  * Different method to construct packets
