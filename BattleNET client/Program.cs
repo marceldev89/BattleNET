@@ -56,7 +56,6 @@ namespace BattleNET_client
             Console.Title += string.Format(" - {0}:{1}", loginCredentials.Host, loginCredentials.Port);
 
             BattlEyeClient b = new BattlEyeClient(loginCredentials);
-            b.SystemMessageReceived += SystemMessage;
             b.MessageEvent += BattlEyeMessage;
             b.ConnectedEvent += Connected;
             b.DisconnectedEvent += Disconnected;
@@ -213,11 +212,6 @@ namespace BattleNET_client
         }
 
         private static void BattlEyeMessage(BattlEyeMessageEventArgs args)
-        {
-            Console.WriteLine(args.Message);
-        }
-
-        private static void SystemMessage(SystemMessageEventArgs args)
         {
             Console.WriteLine(args.Message);
         }

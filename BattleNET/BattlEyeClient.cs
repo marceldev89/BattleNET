@@ -78,8 +78,6 @@ namespace BattleNET
             _socket.ReceiveBufferSize = UInt16.MaxValue;
             _socket.ReceiveTimeout = 5000;
 
-            OnSystemMessage(string.Format("Connecting to {0}:{1}... ", _loginCredentials.Host, _loginCredentials.Port));
-
             try
             {
                 _socket.Connect(remoteEP);
@@ -96,7 +94,6 @@ namespace BattleNET
                 {
                     if (bytesReceived[8] == 0x01)
                     {
-                        OnSystemMessage("Connected!");
                         OnConnect(_loginCredentials);
 
                         Receive();
@@ -411,12 +408,6 @@ namespace BattleNET
             }
         }
 
-        private void OnSystemMessage(string message)
-        {
-            if (SystemMessageReceived != null)
-                SystemMessageReceived(new SystemMessageEventArgs(message));
-        }
-
         private void OnBattlEyeMessage(string message)
         {
             if (MessageEvent != null)
@@ -431,14 +422,10 @@ namespace BattleNET
 
         private void OnDisconnect(BattlEyeLoginCredentials loginDetails, EBattlEyeDisconnectionType disconnectionType)
         {
-            if (SystemMessageReceived != null)
-                SystemMessageReceived(new SystemMessageEventArgs(Helpers.StringValueOf(disconnectionType)));
-
             if (DisconnectedEvent != null)
                 DisconnectedEvent(new BattlEyeDisconnectEventArgs(loginDetails, disconnectionType));
         }
 
-        public event SystemMessageEventHandler SystemMessageReceived;
         public event BattlEyeMessageEventHandler MessageEvent;
         public event BattlEyeConnectEventHandler ConnectedEvent;
         public event BattlEyeDisconnectEventHandler DisconnectedEvent;
