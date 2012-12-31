@@ -59,22 +59,31 @@ private static void Main(string[] args)
 	BattlEyeClient b = new BattlEyeClient(loginCredentials);
 	b.MessageReceivedEvent += HandleMessage;
 	b.DisconnectEvent += HandleDisconnect;
-	b.ReconnectOnPacketLoss(true);
+	b.ReconnectOnPacketLoss = true;
 	b.Connect();
 	
-	b.SendCommandPacket("say -1 This is global message.");
-	b.SendCommandPacket(EBattlEyeCommand.Say, "-1 This is a another global message.");
+	if (b.Connected)
+	{
+		b.SendCommandPacket("say -1 This is global message.");
+		b.SendCommandPacket(EBattlEyeCommand.Say, "-1 This is a another global message.");
+	}
+	
 	while (b.CommandQueue > 0) { /* wait until server received packet(s) */ }
 	b.Disconnect();
 }
 
-private static void HandleMessage(BattlEyeMessageEventArgs args)
+private static void Disconnected(BattlEyeDisconnectEventArgs args)
+{
+	// Disconnected event
+}
+
+private static void BattlEyeMessage(BattlEyeMessageEventArgs args)
 {
 	Console.WriteLine(args.Message);
 }
 
-private static void HandleDisconnect(BattlEyeDisconnectEventArgs args)
+private static void SystemMessage(SystemMessageEventArgs args)
 {
-	Console.WriteLine(args.Message);	
+	Console.WriteLine(args.Message);
 }
 ```
