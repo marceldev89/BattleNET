@@ -1,5 +1,5 @@
 v1.2
- * New connected event available, fires when RCon login was successful
+ * New connect event (success, invalid login, host unreachable)
  * Changed ReconnectOnPacketLoss and IsConnected to properties
  * Removed system messages (Connected, Disconnected, etc) from library
 
