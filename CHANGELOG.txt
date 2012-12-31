@@ -1,3 +1,6 @@
+v1.2
+ * Separated system messages from BattlEye messages (Connected, Disconnected, etc)
+
 v1.1
  * Different method to construct packets
  * Some fixes and cleanups
