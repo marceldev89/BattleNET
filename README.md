@@ -57,7 +57,8 @@ private static void Main(string[] args)
 	};
 
 	BattlEyeClient b = new BattlEyeClient(loginCredentials);
-	b.MessageReceivedEvent += HandleMessage;
+	b.SystemMessageReceived += SystemMessage;
+	b.BattlEyeMessageReceived += BattlEyeMessage;
 	b.DisconnectEvent += HandleDisconnect;
 	b.ReconnectOnPacketLoss = true;
 	b.Connect();
