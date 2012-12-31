@@ -39,8 +39,6 @@ namespace BattleNET
         private int _packetNumber;
         private SortedDictionary<int, string> _packetLog;
 
-        private static ManualResetEvent receiveDone = new ManualResetEvent(false);
-
         public int CommandQueue
         {
             get 
@@ -49,14 +47,23 @@ namespace BattleNET
             }
         }
 
-        private void OnMessageReceived(string message)
+        private void OnSystemMessage(string message)
         {
-            if (MessageReceivedEvent != null)
-                MessageReceivedEvent(new BattlEyeMessageEventArgs(message));
+            if (SystemMessageReceived != null)
+                SystemMessageReceived(new SystemMessageEventArgs(message));
+        }
+
+        private void OnBattlEyeMessage(string message)
+        {
+            if (BattlEyeMessageReceived != null)
+                BattlEyeMessageReceived(new BattlEyeMessageEventArgs(message));
         }
 
         private void OnDisconnect(BattlEyeLoginCredentials loginDetails, EBattlEyeDisconnectionType disconnectionType)
         {
+            if (SystemMessageReceived != null)
+                SystemMessageReceived(new SystemMessageEventArgs(Helpers.StringValueOf(disconnectionType)));
+            
             if (DisconnectEvent != null)
                 DisconnectEvent(new BattlEyeDisconnectEventArgs(loginDetails, disconnectionType));
         }
@@ -84,7 +91,7 @@ namespace BattleNET
             _socket.ReceiveBufferSize = UInt16.MaxValue;
             _socket.ReceiveTimeout = 5000;
 
-            OnMessageReceived(string.Format("Connecting to {0}:{1}... ", _loginCredentials.Host, _loginCredentials.Port));
+            OnSystemMessage(string.Format("Connecting to {0}:{1}... ", _loginCredentials.Host, _loginCredentials.Port));
 
             try
             {
@@ -102,7 +109,7 @@ namespace BattleNET
                 {
                     if (bytesReceived[8] == 0x01)
                     {
-                        OnMessageReceived("Connected!");
+                        OnSystemMessage("Connected!");
 
                         Receive();
                     }
@@ -373,7 +380,7 @@ namespace BattleNET
                 if (state.buffer[7] == 0x02)
                 {
                     SendAcknowledgePacket(Helpers.Bytes2String(new[] { state.buffer[8] }));
-                    OnMessageReceived(Helpers.Bytes2String(state.buffer, 9, bytesRead - 9));
+                    OnBattlEyeMessage(Helpers.Bytes2String(state.buffer, 9, bytesRead - 9));
                 }
                 else if (state.buffer[7] == 0x01)
                 {
@@ -394,7 +401,7 @@ namespace BattleNET
 
                             if (state.packetsTodo == 0)
                             {
-                                OnMessageReceived(state.sb.ToString());
+                                OnBattlEyeMessage(state.sb.ToString());
                                 state.sb = new StringBuilder();
                                 state.packetsTodo = 0;
                             }
@@ -405,7 +412,7 @@ namespace BattleNET
                             state.sb = new StringBuilder();
                             state.packetsTodo = 0;
 
-                            OnMessageReceived(Helpers.Bytes2String(state.buffer, 9, bytesRead - 9));
+                            OnBattlEyeMessage(Helpers.Bytes2String(state.buffer, 9, bytesRead - 9));
                         }
                     }
 
@@ -425,7 +432,8 @@ namespace BattleNET
             }
         }
 
-        public event BattlEyeMessageEventHandler MessageReceivedEvent;
+        public event SystemMessageEventHandler SystemMessageReceived;
+        public event BattlEyeMessageEventHandler BattlEyeMessageReceived;
         public event BattlEyeDisconnectEventHandler DisconnectEvent;
     }
 }

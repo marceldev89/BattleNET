@@ -50,14 +50,14 @@ namespace BattleNET_client
             }
             else
             {
-
                 loginCredentials = GetLoginCredentials();
             }
 
             Console.Title += string.Format(" - {0}:{1}", loginCredentials.Host, loginCredentials.Port);
 
             BattlEyeClient b = new BattlEyeClient(loginCredentials);
-            b.MessageReceivedEvent += DumpMessage;
+            b.SystemMessageReceived += SystemMessage;
+            b.BattlEyeMessageReceived += BattlEyeMessage;
             b.DisconnectEvent += Disconnected;
             b.ReconnectOnPacketLoss(true);
             b.Connect();
@@ -203,10 +203,15 @@ namespace BattleNET_client
 
         private static void Disconnected(BattlEyeDisconnectEventArgs args)
         {
+            // Disconnected event
+        }
+
+        private static void BattlEyeMessage(BattlEyeMessageEventArgs args)
+        {
             Console.WriteLine(args.Message);
         }
 
-        private static void DumpMessage(BattlEyeMessageEventArgs args)
+        private static void SystemMessage(SystemMessageEventArgs args)
         {
             Console.WriteLine(args.Message);
         }
