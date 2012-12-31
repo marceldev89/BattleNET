@@ -1,5 +1,5 @@
 ﻿/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * BattleNET v1.1 - BattlEye Library and Client            *
+ * BattleNET v1.2 - BattlEye Library and Client            *
  *                                                         *
  *  Copyright (C) 2012 by it's authors.                    *
  *  Some rights reserverd. See COPYING.TXT, AUTHORS.TXT.   *
@@ -9,42 +9,34 @@ using System;
 
 namespace BattleNET
 {
+    public delegate void BattlEyeConnectEventHandler(BattlEyeConnectEventArgs args);
     public delegate void BattlEyeDisconnectEventHandler(BattlEyeDisconnectEventArgs args);
 
-    public class BattlEyeDisconnectEventArgs : EventArgs
+    public class BattlEyeConnectEventArgs : EventArgs
     {
-        public BattlEyeDisconnectEventArgs(BattlEyeLoginCredentials loginDetails,
-                                           EBattlEyeDisconnectionType disconnectionType)
+        public BattlEyeConnectEventArgs(BattlEyeLoginCredentials loginDetails, BattlEyeConnectionResult connectionResult)
         {
             LoginDetails = loginDetails;
-            DisconnectionType = disconnectionType;
-
-            switch (DisconnectionType)
-            {
-                case EBattlEyeDisconnectionType.ConnectionLost:
-                    Message = "Disconnected! (Connection timeout)";
-                    break;
-
-                case EBattlEyeDisconnectionType.LoginFailed:
-                    Message = "Disconnected! (Failed to login)";
-                    break;
-
-                case EBattlEyeDisconnectionType.Manual:
-                    Message = "Disconnected!";
-                    break;
-
-                case EBattlEyeDisconnectionType.SocketException:
-                    Message = "Disconnected! (Socket Exception)";
-                    break;
-
-                case EBattlEyeDisconnectionType.ConnectionFailed:
-                    Message = "Connection failed!";
-                    break;
-            }
+            ConnectionResult = connectionResult;
+            Message = Helpers.StringValueOf(connectionResult);
         }
 
         public BattlEyeLoginCredentials LoginDetails { get; private set; }
-        public EBattlEyeDisconnectionType DisconnectionType { get; set; }
+        public BattlEyeConnectionResult ConnectionResult { get; private set; }
+        public string Message { get; private set; }
+    }
+    
+    public class BattlEyeDisconnectEventArgs : EventArgs
+    {
+        public BattlEyeDisconnectEventArgs(BattlEyeLoginCredentials loginDetails, BattlEyeDisconnectionType? disconnectionType)
+        {
+            LoginDetails = loginDetails;
+            DisconnectionType = disconnectionType;
+            Message = Helpers.StringValueOf(disconnectionType);
+        }
+
+        public BattlEyeLoginCredentials LoginDetails { get; private set; }
+        public BattlEyeDisconnectionType? DisconnectionType { get; private set; }
         public string Message { get; private set; }
     }
 }

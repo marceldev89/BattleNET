@@ -1,5 +1,5 @@
 ﻿/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * BattleNET v1.1 - BattlEye Library and Client            *
+ * BattleNET v1.2 - BattlEye Library and Client            *
  *                                                         *
  *  Copyright (C) 2012 by it's authors.                    *
  *  Some rights reserverd. See COPYING.TXT, AUTHORS.TXT.   *
@@ -20,7 +20,6 @@ namespace BattleNET_client
             string command = "";
 
             Console.OutputEncoding = Encoding.UTF8;
-            Console.Title = "BattleNET Client";
 
             if (args.Length > 0)
             {
@@ -50,16 +49,16 @@ namespace BattleNET_client
             }
             else
             {
-
                 loginCredentials = GetLoginCredentials();
             }
 
-            Console.Title += string.Format(" - {0}:{1}", loginCredentials.Host, loginCredentials.Port);
+            Console.Title = string.Format("BattleNET client v1.2 - {0}:{1}", loginCredentials.Host, loginCredentials.Port);
 
             BattlEyeClient b = new BattlEyeClient(loginCredentials);
-            b.MessageReceivedEvent += DumpMessage;
-            b.DisconnectEvent += Disconnected;
-            b.ReconnectOnPacketLoss(true);
+            b.MessageEvent += Message;
+            b.ConnectEvent += Connect;
+            b.DisconnectEvent += Disconnect;
+            b.ReconnectOnPacketLoss = true;
             b.Connect();
 
             if (command != "")
@@ -78,18 +77,33 @@ namespace BattleNET_client
                         break;
                     }
 
-                    if (b.IsConnected())
+                    if (b.Connected)
                     {
                         b.SendCommandPacket(cmd);
                     }
                     else
                     {
-                        Console.WriteLine("Not connected!");
+                        Environment.Exit(0);
                     }
                 }
             }
 
             b.Disconnect();
+        }
+
+        private static void Connect(BattlEyeConnectEventArgs args)
+        {
+            Console.WriteLine(args.Message);
+        }
+
+        private static void Disconnect(BattlEyeDisconnectEventArgs args)
+        {
+            Console.WriteLine(args.Message);
+        }
+
+        private static void Message(BattlEyeMessageEventArgs args)
+        {
+            Console.WriteLine(args.Message);
         }
 
         private static BattlEyeLoginCredentials GetLoginCredentials(string[] args)
@@ -199,16 +213,6 @@ namespace BattleNET_client
                                        };
 
             return loginCredentials;
-        }
-
-        private static void Disconnected(BattlEyeDisconnectEventArgs args)
-        {
-            Console.WriteLine(args.Message);
-        }
-
-        private static void DumpMessage(BattlEyeMessageEventArgs args)
-        {
-            Console.WriteLine(args.Message);
         }
     }
 }

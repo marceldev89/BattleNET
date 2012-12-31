@@ -1,5 +1,5 @@
 ﻿/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * BattleNET v1.1 - BattlEye Library and Client            *
+ * BattleNET v1.2 - BattlEye Library and Client            *
  *                                                         *
  *  Copyright (C) 2012 by it's authors.                    *
  *  Some rights reserverd. See COPYING.TXT, AUTHORS.TXT.   *
@@ -9,7 +9,7 @@ using System.ComponentModel;
 
 namespace BattleNET
 {
-    public enum EBattlEyeCommand
+    public enum BattlEyeCommand
     {        
         /// <summary>
         /// #init - Reload server config file loaded by –config option.

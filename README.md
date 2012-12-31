@@ -42,39 +42,4 @@ BattleNET client.exe -host 127.0.0.1 -port 2302 -password 123456789 -command "sa
 #### BattleNET library ####
 
 Implementation sample:
-
-```csharp
-using System;
-using BattleNET;
-
-private static void Main(string[] args)
-{
-    BattlEyeLoginCredentials loginCredentials = new BattlEyeLoginCredentials
-	{
-		Host = "127.0.0.1",
-		Port = 2302,
-		Password = "password"
-	};
-
-	BattlEyeClient b = new BattlEyeClient(loginCredentials);
-	b.MessageReceivedEvent += HandleMessage;
-	b.DisconnectEvent += HandleDisconnect;
-	b.ReconnectOnPacketLoss(true);
-	b.Connect();
-	
-	b.SendCommandPacket("say -1 This is global message.");
-	b.SendCommandPacket(EBattlEyeCommand.Say, "-1 This is a another global message.");
-	while (b.CommandQueue > 0) { /* wait until server received packet(s) */ }
-	b.Disconnect();
-}
-
-private static void HandleMessage(BattlEyeMessageEventArgs args)
-{
-	Console.WriteLine(args.Message);
-}
-
-private static void HandleDisconnect(BattlEyeDisconnectEventArgs args)
-{
-	Console.WriteLine(args.Message);	
-}
-```
+https://github.com/ziellos2k/BattleNET/blob/master/BattleNET%20client/Program.cs
