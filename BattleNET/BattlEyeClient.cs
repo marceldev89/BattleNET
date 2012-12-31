@@ -27,21 +27,30 @@ namespace BattleNET
     public class BattlEyeClient
     {
         private Socket _socket;
-
         private DateTime _commandSend;
         private DateTime _responseReceived;
-
         private EBattlEyeDisconnectionType? _disconnectionType;
-
         private bool _keepRunning;
-        private bool _reconnectOnPacketLoss;
-
         private int _packetNumber;
         private SortedDictionary<int, string> _packetLog;
 
+        public bool Connected
+        {
+            get
+            {
+                return _socket != null && _socket.Connected;
+            }
+        }
+
+        public bool ReconnectOnPacketLoss
+        {
+            get;
+            set;
+        }
+
         public int CommandQueue
         {
-            get 
+            get
             {
                 return _packetLog.Count;
             }
@@ -256,11 +265,6 @@ namespace BattleNET
             return Helpers.String2Bytes(packet);
         }
 
-        public bool IsConnected()
-        {
-            return _socket != null && _socket.Connected;
-        }
-
         public void Disconnect()
         {
             _keepRunning = false;
@@ -288,17 +292,6 @@ namespace BattleNET
             }
 
             OnDisconnect(_loginCredentials, disconnectionType);
-        }
-
-        public bool ReconnectOnPacketLoss(bool newSetting)
-        {
-            _reconnectOnPacketLoss = newSetting;
-            return _reconnectOnPacketLoss;
-        }
-
-        public bool IsReconnectingOnPacketLoss
-        {
-            get { return _reconnectOnPacketLoss; }
         }
 
         private void Receive()
@@ -352,7 +345,7 @@ namespace BattleNET
 
                 if (!_socket.Connected)
                 {
-                    if (_reconnectOnPacketLoss && _keepRunning)
+                    if (ReconnectOnPacketLoss && _keepRunning)
                     {
                         Connect();
                     }

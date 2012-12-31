@@ -59,7 +59,7 @@ namespace BattleNET_client
             b.SystemMessageReceived += SystemMessage;
             b.BattlEyeMessageReceived += BattlEyeMessage;
             b.DisconnectEvent += Disconnected;
-            b.ReconnectOnPacketLoss(true);
+            b.ReconnectOnPacketLoss = true;
             b.Connect();
 
             if (command != "")
@@ -78,7 +78,7 @@ namespace BattleNET_client
                         break;
                     }
 
-                    if (b.IsConnected())
+                    if (b.Connected)
                     {
                         b.SendCommandPacket(cmd);
                     }
