@@ -57,8 +57,9 @@ namespace BattleNET_client
 
             BattlEyeClient b = new BattlEyeClient(loginCredentials);
             b.SystemMessageReceived += SystemMessage;
-            b.BattlEyeMessageReceived += BattlEyeMessage;
-            b.DisconnectEvent += Disconnected;
+            b.MessageEvent += BattlEyeMessage;
+            b.ConnectedEvent += Connected;
+            b.DisconnectedEvent += Disconnected;
             b.ReconnectOnPacketLoss = true;
             b.Connect();
 
@@ -199,6 +200,11 @@ namespace BattleNET_client
                                        };
 
             return loginCredentials;
+        }
+
+        private static void Connected(BattlEyeConnectEventArgs args)
+        {
+            // Connected event
         }
 
         private static void Disconnected(BattlEyeDisconnectEventArgs args)

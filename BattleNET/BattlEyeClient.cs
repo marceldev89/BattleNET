@@ -33,6 +33,7 @@ namespace BattleNET
         private bool _keepRunning;
         private int _packetNumber;
         private SortedDictionary<int, string> _packetLog;
+        private BattlEyeLoginCredentials _loginCredentials;
 
         public bool Connected
         {
@@ -55,29 +56,6 @@ namespace BattleNET
                 return _packetLog.Count;
             }
         }
-
-        private void OnSystemMessage(string message)
-        {
-            if (SystemMessageReceived != null)
-                SystemMessageReceived(new SystemMessageEventArgs(message));
-        }
-
-        private void OnBattlEyeMessage(string message)
-        {
-            if (BattlEyeMessageReceived != null)
-                BattlEyeMessageReceived(new BattlEyeMessageEventArgs(message));
-        }
-
-        private void OnDisconnect(BattlEyeLoginCredentials loginDetails, EBattlEyeDisconnectionType disconnectionType)
-        {
-            if (SystemMessageReceived != null)
-                SystemMessageReceived(new SystemMessageEventArgs(Helpers.StringValueOf(disconnectionType)));
-            
-            if (DisconnectEvent != null)
-                DisconnectEvent(new BattlEyeDisconnectEventArgs(loginDetails, disconnectionType));
-        }
-
-        private BattlEyeLoginCredentials _loginCredentials;
 
         public BattlEyeClient(BattlEyeLoginCredentials loginCredentials)
         {
@@ -119,6 +97,7 @@ namespace BattleNET
                     if (bytesReceived[8] == 0x01)
                     {
                         OnSystemMessage("Connected!");
+                        OnConnect(_loginCredentials);
 
                         Receive();
                     }
@@ -432,8 +411,36 @@ namespace BattleNET
             }
         }
 
+        private void OnSystemMessage(string message)
+        {
+            if (SystemMessageReceived != null)
+                SystemMessageReceived(new SystemMessageEventArgs(message));
+        }
+
+        private void OnBattlEyeMessage(string message)
+        {
+            if (MessageEvent != null)
+                MessageEvent(new BattlEyeMessageEventArgs(message));
+        }
+
+        private void OnConnect(BattlEyeLoginCredentials loginDetails)
+        {
+            if (ConnectedEvent != null)
+                ConnectedEvent(new BattlEyeConnectEventArgs(loginDetails));
+        }
+
+        private void OnDisconnect(BattlEyeLoginCredentials loginDetails, EBattlEyeDisconnectionType disconnectionType)
+        {
+            if (SystemMessageReceived != null)
+                SystemMessageReceived(new SystemMessageEventArgs(Helpers.StringValueOf(disconnectionType)));
+
+            if (DisconnectedEvent != null)
+                DisconnectedEvent(new BattlEyeDisconnectEventArgs(loginDetails, disconnectionType));
+        }
+
         public event SystemMessageEventHandler SystemMessageReceived;
-        public event BattlEyeMessageEventHandler BattlEyeMessageReceived;
-        public event BattlEyeDisconnectEventHandler DisconnectEvent;
+        public event BattlEyeMessageEventHandler MessageEvent;
+        public event BattlEyeConnectEventHandler ConnectedEvent;
+        public event BattlEyeDisconnectEventHandler DisconnectedEvent;
     }
 }

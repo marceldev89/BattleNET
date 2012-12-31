@@ -9,8 +9,19 @@ using System;
 
 namespace BattleNET
 {
+    public delegate void BattlEyeConnectEventHandler(BattlEyeConnectEventArgs args);
     public delegate void BattlEyeDisconnectEventHandler(BattlEyeDisconnectEventArgs args);
 
+    public class BattlEyeConnectEventArgs : EventArgs
+    {
+        public BattlEyeConnectEventArgs(BattlEyeLoginCredentials loginDetails)
+        {
+            LoginDetails = loginDetails;
+        }
+
+        public BattlEyeLoginCredentials LoginDetails { get; private set; }
+    }
+    
     public class BattlEyeDisconnectEventArgs : EventArgs
     {
         public BattlEyeDisconnectEventArgs(BattlEyeLoginCredentials loginDetails,
