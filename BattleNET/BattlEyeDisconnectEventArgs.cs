@@ -29,9 +29,11 @@ namespace BattleNET
         {
             LoginDetails = loginDetails;
             DisconnectionType = disconnectionType;
+            Message = Helpers.StringValueOf(disconnectionType);
         }
 
         public BattlEyeLoginCredentials LoginDetails { get; private set; }
-        public EBattlEyeDisconnectionType DisconnectionType { get; set; }
+        public EBattlEyeDisconnectionType DisconnectionType { get; private set; }
+        public string Message { get; private set; }
     }
 }

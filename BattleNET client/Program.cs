@@ -203,12 +203,12 @@ namespace BattleNET_client
 
         private static void Connected(BattlEyeConnectEventArgs args)
         {
-            // Connected event
+            Console.WriteLine("Connected to {0}:{1}...", args.LoginDetails.Host, args.LoginDetails.Port);
         }
 
         private static void Disconnected(BattlEyeDisconnectEventArgs args)
         {
-            // Disconnected event
+            Console.WriteLine(args.Message);
         }
 
         private static void BattlEyeMessage(BattlEyeMessageEventArgs args)
