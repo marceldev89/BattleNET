@@ -20,7 +20,6 @@ namespace BattleNET_client
             string command = "";
 
             Console.OutputEncoding = Encoding.UTF8;
-            Console.Title = "BattleNET Client";
 
             if (args.Length > 0)
             {
@@ -53,7 +52,7 @@ namespace BattleNET_client
                 loginCredentials = GetLoginCredentials();
             }
 
-            Console.Title += string.Format(" - {0}:{1}", loginCredentials.Host, loginCredentials.Port);
+            Console.Title = string.Format("BattleNET client v1.2 - {0}:{1}", loginCredentials.Host, loginCredentials.Port);
 
             BattlEyeClient b = new BattlEyeClient(loginCredentials);
             b.MessageEvent += BattlEyeMessage;
@@ -90,6 +89,21 @@ namespace BattleNET_client
             }
 
             b.Disconnect();
+        }
+
+        private static void Connected(BattlEyeConnectEventArgs args)
+        {
+            Console.WriteLine("Connected to {0}:{1}...", args.LoginDetails.Host, args.LoginDetails.Port);
+        }
+
+        private static void Disconnected(BattlEyeDisconnectEventArgs args)
+        {
+            Console.WriteLine(args.Message);
+        }
+
+        private static void BattlEyeMessage(BattlEyeMessageEventArgs args)
+        {
+            Console.WriteLine(args.Message);
         }
 
         private static BattlEyeLoginCredentials GetLoginCredentials(string[] args)
@@ -199,21 +213,6 @@ namespace BattleNET_client
                                        };
 
             return loginCredentials;
-        }
-
-        private static void Connected(BattlEyeConnectEventArgs args)
-        {
-            Console.WriteLine("Connected to {0}:{1}...", args.LoginDetails.Host, args.LoginDetails.Port);
-        }
-
-        private static void Disconnected(BattlEyeDisconnectEventArgs args)
-        {
-            Console.WriteLine(args.Message);
-        }
-
-        private static void BattlEyeMessage(BattlEyeMessageEventArgs args)
-        {
-            Console.WriteLine(args.Message);
         }
     }
 }
