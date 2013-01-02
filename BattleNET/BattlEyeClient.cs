@@ -163,12 +163,14 @@ namespace BattleNET
             return BattlEyeCommandResult.Success;
         }
 
-        public BattlEyeCommandResult SendCommandPacket(string command, bool log = true)
+        public int SendCommandPacket(string command, bool log = true)
         {
+            int returnValue = packetNumber;
+
             try
             {
                 if (!socket.Connected)
-                    return BattlEyeCommandResult.NotConnected;
+                    return 256;
 
                 byte[] packet = ConstructPacket(1, packetNumber, command);
 
@@ -183,18 +185,20 @@ namespace BattleNET
             }
             catch
             {
-                return BattlEyeCommandResult.Error;
+                return 256;
             }
 
-            return BattlEyeCommandResult.Success;
+            return returnValue;
         }
 
-        public BattlEyeCommandResult SendCommandPacket(BattlEyeCommand command, string parameters = "")
+        public int SendCommandPacket(BattlEyeCommand command, string parameters = "")
         {
+            int returnValue = packetNumber;
+
             try
             {
                 if (!socket.Connected)
-                    return BattlEyeCommandResult.NotConnected;
+                    return 256;
 
                 byte[] packet = ConstructPacket(1, packetNumber, Helpers.StringValueOf(command) + parameters);
 
@@ -207,10 +211,10 @@ namespace BattleNET
             }
             catch
             {
-                return BattlEyeCommandResult.Error;
+                return 256;
             }
 
-            return BattlEyeCommandResult.Success;
+            return returnValue;
         }
 
         private byte[] ConstructPacket(int packetType, int sequenceNumber, string command)
@@ -359,7 +363,7 @@ namespace BattleNET
                 if (state.Buffer[7] == 0x02)
                 {
                     SendAcknowledgePacket(Helpers.Bytes2String(new[] { state.Buffer[8] }));
-                    OnBattlEyeMessage(Helpers.Bytes2String(state.Buffer, 9, bytesRead - 9));
+                    OnBattlEyeMessage(Helpers.Bytes2String(state.Buffer, 9, bytesRead - 9), 256);
                 }
                 else if (state.Buffer[7] == 0x01)
                 {
@@ -380,7 +384,7 @@ namespace BattleNET
 
                             if (state.PacketsTodo == 0)
                             {
-                                OnBattlEyeMessage(state.Message.ToString());
+                                OnBattlEyeMessage(state.Message.ToString(), state.Buffer[8]);
                                 state.Message = new StringBuilder();
                                 state.PacketsTodo = 0;
                             }
@@ -391,7 +395,7 @@ namespace BattleNET
                             state.Message = new StringBuilder();
                             state.PacketsTodo = 0;
 
-                            OnBattlEyeMessage(Helpers.Bytes2String(state.Buffer, 9, bytesRead - 9));
+                            OnBattlEyeMessage(Helpers.Bytes2String(state.Buffer, 9, bytesRead - 9), state.Buffer[8]);
                         }
                     }
 
@@ -411,10 +415,10 @@ namespace BattleNET
             }
         }
 
-        private void OnBattlEyeMessage(string message)
+        private void OnBattlEyeMessage(string message, int id)
         {
             if (MessageEvent != null)
-                MessageEvent(new BattlEyeMessageEventArgs(message));
+                MessageEvent(new BattlEyeMessageEventArgs(message, id));
         }
 
         private void OnConnect(BattlEyeLoginCredentials loginDetails, BattlEyeConnectionResult connectionResult)

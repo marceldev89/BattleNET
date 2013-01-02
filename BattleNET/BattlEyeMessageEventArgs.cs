@@ -13,11 +13,13 @@ namespace BattleNET
 
     public class BattlEyeMessageEventArgs : EventArgs
     {
-        public BattlEyeMessageEventArgs(string message)
+        public BattlEyeMessageEventArgs(string message, int id)
         {
             Message = message;
+            Id = id;
         }
 
         public string Message { get; private set; }
+        public int Id { get; private set; }
     }
 }
