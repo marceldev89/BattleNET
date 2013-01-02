@@ -178,7 +178,7 @@ namespace BattleNET
                 if (log)
                 {
                     packetLog.Add(packetNumber, command);
-                    packetNumber++;
+                    packetNumber = (packetNumber == 255) ? 0 : packetNumber + 1;
                 }
             }
             catch
@@ -203,7 +203,7 @@ namespace BattleNET
                 commandSend = DateTime.Now;
 
                 packetLog.Add(packetNumber, Helpers.StringValueOf(command) + parameters);
-                packetNumber++;
+                packetNumber = (packetNumber == 255) ? 0 : packetNumber + 1;
             }
             catch
             {
