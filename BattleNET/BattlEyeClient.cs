@@ -428,8 +428,8 @@ namespace BattleNET
 
         private void OnBattlEyeMessage(string message, int id)
         {
-            if (MessageEvent != null)
-                MessageEvent(new BattlEyeMessageEventArgs(message, id));
+            if (BattlEyeMessageReceived != null)
+                BattlEyeMessageReceived(new BattlEyeMessageEventArgs(message, id));
         }
 
         private void OnConnect(BattlEyeLoginCredentials loginDetails, BattlEyeConnectionResult connectionResult)
@@ -437,18 +437,18 @@ namespace BattleNET
             if (connectionResult == BattlEyeConnectionResult.ConnectionFailed || connectionResult == BattlEyeConnectionResult.InvalidLogin)
                 Disconnect(null);
 
-            if (ConnectEvent != null)
-                ConnectEvent(new BattlEyeConnectEventArgs(loginDetails, connectionResult));
+            if (BattlEyeConnected != null)
+                BattlEyeConnected(new BattlEyeConnectEventArgs(loginDetails, connectionResult));
         }
 
         private void OnDisconnect(BattlEyeLoginCredentials loginDetails, BattlEyeDisconnectionType? disconnectionType)
         {
-            if (DisconnectEvent != null)
-                DisconnectEvent(new BattlEyeDisconnectEventArgs(loginDetails, disconnectionType));
+            if (BattlEyeDisconnected != null)
+                BattlEyeDisconnected(new BattlEyeDisconnectEventArgs(loginDetails, disconnectionType));
         }
 
-        public event BattlEyeMessageEventHandler MessageEvent;
-        public event BattlEyeConnectEventHandler ConnectEvent;
-        public event BattlEyeDisconnectEventHandler DisconnectEvent;
+        public event BattlEyeMessageEventHandler BattlEyeMessageReceived;
+        public event BattlEyeConnectEventHandler BattlEyeConnected;
+        public event BattlEyeDisconnectEventHandler BattlEyeDisconnected;
     }
 }

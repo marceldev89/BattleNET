@@ -63,9 +63,9 @@ namespace BattleNET_client
             Console.Title = string.Format("BattleNET client v1.2 - {0}:{1}", loginCredentials.Host, loginCredentials.Port);
 
             BattlEyeClient b = new BattlEyeClient(loginCredentials);
-            b.MessageEvent += Message;
-            b.ConnectEvent += Connect;
-            b.DisconnectEvent += Disconnect;
+            b.BattlEyeMessageReceived += Message;
+            b.BattlEyeConnected += Connect;
+            b.BattlEyeDisconnected += Disconnect;
             b.ReconnectOnPacketLoss = true;
             b.Connect();
 
