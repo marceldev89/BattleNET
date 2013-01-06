@@ -63,9 +63,9 @@ namespace BattleNET_client
             Console.Title = string.Format("BattleNET client v1.2 - {0}:{1}", loginCredentials.Host, loginCredentials.Port);
 
             BattlEyeClient b = new BattlEyeClient(loginCredentials);
-            b.BattlEyeMessageReceived += Message;
-            b.BattlEyeConnected += Connect;
-            b.BattlEyeDisconnected += Disconnect;
+            b.BattlEyeMessageReceived += BattlEyeMessageReceived;
+            b.BattlEyeConnected += BattlEyeConnected;
+            b.BattlEyeDisconnected += BattlEyeDisconnected;
             b.ReconnectOnPacketLoss = true;
             b.Connect();
 
@@ -99,18 +99,31 @@ namespace BattleNET_client
             b.Disconnect();
         }
 
-        private static void Connect(BattlEyeConnectEventArgs args)
+        private static void BattlEyeConnected(BattlEyeConnectEventArgs args)
         {
+            //if (args.ConnectionResult == BattlEyeConnectionResult.Success) { /* Connected successfully */ }
+            //if (args.ConnectionResult == BattlEyeConnectionResult.InvalidLogin) { /* Connection failed, invalid login details */ }
+            //if (args.ConnectionResult == BattlEyeConnectionResult.ConnectionFailed) { /* Connection failed, host unreachable */ }
+
             Console.WriteLine(args.Message);
         }
 
-        private static void Disconnect(BattlEyeDisconnectEventArgs args)
+        private static void BattlEyeDisconnected(BattlEyeDisconnectEventArgs args)
         {
+            //if (args.DisconnectionType == BattlEyeDisconnectionType.ConnectionLost) { /* Connection lost (timeout), if ReconnectOnPacketLoss is set to true it will reconnect */ }
+            //if (args.DisconnectionType == BattlEyeDisconnectionType.SocketException) { /* Something went terribly wrong... */ }
+            //if (args.DisconnectionType == BattlEyeDisconnectionType.Manual) { /* Disconnected by implementing application, that would be you */ }
+
             Console.WriteLine(args.Message);
         }
 
-        private static void Message(BattlEyeMessageEventArgs args)
+        private static void BattlEyeMessageReceived(BattlEyeMessageEventArgs args)
         {
+            //if (args.Id == playerListId)
+            //{
+            //    playerList = args.Message;
+            //}
+
             Console.WriteLine(args.Message);
         }
 
