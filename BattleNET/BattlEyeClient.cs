@@ -171,7 +171,7 @@ namespace BattleNET
 
         private int SendCommandPacket(string command, bool log = true)
         {
-            int returnValue = sequenceNumber;
+            int packetID = sequenceNumber;
 
             try
             {
@@ -194,7 +194,7 @@ namespace BattleNET
                 return 256;
             }
 
-            return returnValue;
+            return packetID;
         }
 
         public int SendCommand(BattlEyeCommand command, string parameters = "")
@@ -204,7 +204,7 @@ namespace BattleNET
 
         private int SendCommandPacket(BattlEyeCommand command, string parameters = "")
         {
-            int returnValue = sequenceNumber;
+            int packetID = sequenceNumber;
 
             try
             {
@@ -225,7 +225,7 @@ namespace BattleNET
                 return 256;
             }
 
-            return returnValue;
+            return packetID;
         }
 
         private byte[] ConstructPacket(BattlEyePacketType packetType, int sequenceNumber, string command)
