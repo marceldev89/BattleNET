@@ -16,6 +16,12 @@ namespace BattleNET_client
     {
         private static void Main(string[] args)
         {
+            Console.WriteLine(
+                "BattleNET v1.2 - BattlEye Library and Client\n\n" +
+                "Copyright (C) 2013 by it's authors.\n" +
+                "Some rights reserved. See COPYING.TXT, AUTHORS.TXT.\n"
+            );
+
             BattlEyeLoginCredentials loginCredentials;
             string command = "";
 
@@ -43,6 +49,8 @@ namespace BattleNET_client
 
                 if (loginCredentials.Host == null || loginCredentials.Port == 0 || loginCredentials.Password == "")
                 {
+                    Console.WriteLine("BattleNET client usage:");
+                    Console.WriteLine("BattleNET client.exe -host 127.0.0.1 -port 2302 -password admin [-command shutdown]");
                     Console.Read();
                     Environment.Exit(0);
                 }
@@ -109,8 +117,11 @@ namespace BattleNET_client
         private static BattlEyeLoginCredentials GetLoginCredentials(string[] args)
         {
             BattlEyeLoginCredentials loginCredentials = new BattlEyeLoginCredentials();
+            loginCredentials.Host = null;
+            loginCredentials.Port = 0;
+            loginCredentials.Password = "";
 
-            for (int i = 0; i < args.Length; i++)
+            for (int i = 0; i < args.Length; i = i + 2)
             {
                 switch (args[i])
                 {
@@ -123,7 +134,7 @@ namespace BattleNET_client
                             }
                             else
                             {
-                                Console.WriteLine("No valid host given!", args[i + 1]);
+                                Console.WriteLine("No valid host given!");
                             }
                             break;
                         }
@@ -137,7 +148,7 @@ namespace BattleNET_client
                             }
                             else
                             {
-                                Console.WriteLine("No valid port given!", args[i + 1]);
+                                Console.WriteLine("No valid port given!");
                             }
                             break;
                         }
