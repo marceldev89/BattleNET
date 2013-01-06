@@ -1,4 +1,5 @@
 v1.2
+ * SendCommandPacket() now returns an identifier which can be used in message filtering
  * New connect event (success, invalid login, host unreachable)
  * Changed ReconnectOnPacketLoss and IsConnected to properties
  * Removed system messages (Connected, Disconnected, etc) from library
