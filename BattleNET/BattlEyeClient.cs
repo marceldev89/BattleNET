@@ -164,7 +164,12 @@ namespace BattleNET
             return BattlEyeCommandResult.Success;
         }
 
-        public int SendCommandPacket(string command, bool log = true)
+        public int SendCommand(string command, bool log = true)
+        {
+            return SendCommandPacket(command, log);
+        }
+
+        private int SendCommandPacket(string command, bool log = true)
         {
             int returnValue = sequenceNumber;
 
@@ -192,7 +197,12 @@ namespace BattleNET
             return returnValue;
         }
 
-        public int SendCommandPacket(BattlEyeCommand command, string parameters = "")
+        public int SendCommand(BattlEyeCommand command, string parameters = "")
+        {
+            return SendCommandPacket(command, parameters);
+        }
+
+        private int SendCommandPacket(BattlEyeCommand command, string parameters = "")
         {
             int returnValue = sequenceNumber;
 

@@ -63,7 +63,7 @@ namespace BattleNET_client
 
             if (command != "")
             {
-                b.SendCommandPacket(command);
+                b.SendCommand(command);
                 while (b.CommandQueue > 0) { /* wait until server received packet */ };
             }
             else
@@ -79,7 +79,7 @@ namespace BattleNET_client
 
                     if (b.Connected)
                     {
-                        b.SendCommandPacket(cmd);
+                        b.SendCommand(cmd);
                     }
                     else
                     {
