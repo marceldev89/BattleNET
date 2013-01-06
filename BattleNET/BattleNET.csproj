@@ -44,6 +44,7 @@
     <Compile Include="BattlEyeClient.cs" />
     <Compile Include="BattlEyeDisconnectEventArgs.cs" />
     <Compile Include="BattlEyeMessageEventArgs.cs" />
+    <Compile Include="BattlEyePacketType.cs" />
     <Compile Include="CRC32.cs" />
     <Compile Include="BattlEyeCommandResult.cs" />
     <Compile Include="BattlEyeCommand.cs" />
