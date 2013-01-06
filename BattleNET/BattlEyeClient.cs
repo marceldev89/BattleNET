@@ -19,7 +19,7 @@ namespace BattleNET
     public class StateObject
     {
         public Socket WorkSocket = null;
-        public const int BufferSize = 4096;
+        public const int BufferSize = 2048;
         public byte[] Buffer = new byte[BufferSize];
         public StringBuilder Message = new StringBuilder();
         public int PacketsTodo = 0;
