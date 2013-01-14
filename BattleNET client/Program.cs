@@ -1,5 +1,5 @@
 ﻿/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * BattleNET v1.2 - BattlEye Library and Client            *
+ * BattleNET v1.3 - BattlEye Library and Client            *
  *                                                         *
  *  Copyright (C) 2013 by it's authors.                    *
  *  Some rights reserved. See COPYING.TXT, AUTHORS.TXT.    *
@@ -17,7 +17,7 @@ namespace BattleNET_client
         private static void Main(string[] args)
         {
             Console.WriteLine(
-                "BattleNET v1.2 - BattlEye Library and Client\n\n" +
+                "BattleNET v1.3 - BattlEye Library and Client\n\n" +
                 "Copyright (C) 2013 by it's authors.\n" +
                 "Some rights reserved. See COPYING.TXT, AUTHORS.TXT.\n"
             );
