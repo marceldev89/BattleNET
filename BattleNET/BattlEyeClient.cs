@@ -76,7 +76,7 @@ namespace BattleNET
             EndPoint remoteEP = new IPEndPoint(ipAddress, loginCredentials.Port);
 
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            socket.ReceiveBufferSize = UInt16.MaxValue;
+            socket.ReceiveBufferSize = Int32.MaxValue;
             socket.ReceiveTimeout = 5000;
 
             try
