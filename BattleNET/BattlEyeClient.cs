@@ -72,7 +72,7 @@ namespace BattleNET
             packetQueue = new SortedDictionary<int, string>();
 
             keepRunning = true;
-            IPAddress ipAddress = IPAddress.Parse(loginCredentials.Host);
+            IPAddress ipAddress = Dns.GetHostAddresses(loginCredentials.Host)[0];
             EndPoint remoteEP = new IPEndPoint(ipAddress, loginCredentials.Port);
 
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);

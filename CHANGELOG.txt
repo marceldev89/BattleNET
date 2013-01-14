@@ -1,3 +1,6 @@
+v1.3
+ * Added DNS resolution support
+
 v1.2.1
  * Increased max socket receive buffer (fixes long ban lists)
 

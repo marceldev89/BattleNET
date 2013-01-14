@@ -60,7 +60,7 @@ namespace BattleNET_client
                 loginCredentials = GetLoginCredentials();
             }
 
-            Console.Title = string.Format("BattleNET client v1.2 - {0}:{1}", loginCredentials.Host, loginCredentials.Port);
+            Console.Title = string.Format("BattleNET client v1.3 - {0}:{1}", loginCredentials.Host, loginCredentials.Port);
 
             BattlEyeClient b = new BattlEyeClient(loginCredentials);
             b.BattlEyeMessageReceived += BattlEyeMessageReceived;
@@ -140,12 +140,14 @@ namespace BattleNET_client
                 {
                     case "-host":
                         {
-                            IPAddress value;
-                            if (IPAddress.TryParse(args[i + 1], out value))
+                            try
                             {
-                                loginCredentials.Host = value.ToString();
+                                if (Dns.GetHostAddresses(args[i + 1]).Length > 0)
+                                {
+                                    loginCredentials.Host = args[i + 1];
+                                }
                             }
-                            else
+                            catch
                             {
                                 Console.WriteLine("No valid host given!");
                             }
@@ -192,23 +194,24 @@ namespace BattleNET_client
 
             do
             {
-                IPAddress value;
                 string input;
-
-                Console.Write("Enter IP address: ");
+                Console.Write("Enter IP address or hostname: ");
                 input = Console.ReadLine();
 
-                if (IPAddress.TryParse(input, out value))
+                try
                 {
-                    ip = value.ToString();
+                    if (Dns.GetHostAddresses(input).Length > 0)
+                    {
+                        ip = input;
+                    }
                 }
+                catch { /* try again */ }
             } while (ip == "");
 
             do
             {
                 int value;
                 string input;
-
                 Console.Write("Enter port number: ");
                 input = Console.ReadLine();
 
