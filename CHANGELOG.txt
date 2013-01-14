@@ -1,3 +1,6 @@
+v1.2.1
+ * Increased max socket receive buffer (fixes long ban lists)
+
 v1.2
  * Removed system messages (Connected, Disconnected, etc) from library
  * Changed ReconnectOnPacketLoss and IsConnected to properties
