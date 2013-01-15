@@ -142,10 +142,8 @@ namespace BattleNET_client
                         {
                             try
                             {
-                                if (Dns.GetHostAddresses(args[i + 1]).Length > 0)
-                                {
-                                    loginCredentials.Host = args[i + 1];
-                                }
+                                IPAddress ip = Dns.GetHostAddresses(args[i + 1])[0];
+                                loginCredentials.Host = ip;
                             }
                             catch
                             {
@@ -188,7 +186,7 @@ namespace BattleNET_client
 
         private static BattlEyeLoginCredentials GetLoginCredentials()
         {
-            string ip = "";
+            IPAddress host = null;
             int port = 0;
             string password = "";
 
@@ -200,13 +198,11 @@ namespace BattleNET_client
 
                 try
                 {
-                    if (Dns.GetHostAddresses(input).Length > 0)
-                    {
-                        ip = input;
-                    }
+                    IPAddress ip = Dns.GetHostAddresses(input)[0];
+                    host = ip;
                 }
                 catch { /* try again */ }
-            } while (ip == "");
+            } while (host == null);
 
             do
             {
@@ -234,7 +230,7 @@ namespace BattleNET_client
 
             var loginCredentials = new BattlEyeLoginCredentials
                                        {
-                                           Host = ip,
+                                           Host = host,
                                            Port = port,
                                            Password = password,
                                        };

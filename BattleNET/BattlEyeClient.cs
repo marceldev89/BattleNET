@@ -70,11 +70,9 @@ namespace BattleNET
 
             sequenceNumber = 0;
             packetQueue = new SortedDictionary<int, string>();
-
             keepRunning = true;
-            IPAddress ipAddress = Dns.GetHostAddresses(loginCredentials.Host)[0];
-            EndPoint remoteEP = new IPEndPoint(ipAddress, loginCredentials.Port);
 
+            EndPoint remoteEP = new IPEndPoint(loginCredentials.Host, loginCredentials.Port);
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
             socket.ReceiveBufferSize = Int32.MaxValue;
             socket.ReceiveTimeout = 5000;
