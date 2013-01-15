@@ -2,7 +2,7 @@
  * BattleNET v1.3 - BattlEye Library and Client            *
  *                                                         *
  *  Copyright (C) 2013 by it's authors.                    *
- *  Some rights reserved. See COPYING.TXT, AUTHORS.TXT.    *
+ *  Some rights reserved. See license.txt, authors.txt.    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 using System;
@@ -19,7 +19,7 @@ namespace BattleNET_client
             Console.WriteLine(
                 "BattleNET v1.3 - BattlEye Library and Client\n\n" +
                 "Copyright (C) 2013 by it's authors.\n" +
-                "Some rights reserved. See COPYING.TXT, AUTHORS.TXT.\n"
+                "Some rights reserved. See license.txt, authors.txt.\n"
             );
 
             BattlEyeLoginCredentials loginCredentials;

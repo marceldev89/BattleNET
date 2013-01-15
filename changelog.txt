@@ -1,5 +1,6 @@
 v1.3
- * Added DNS resolution support
+ * Client now has DNS support
+ * BattlEyeLoginCredentials.Host changed from string to IPAddress
 
 v1.2.1
  * Increased max socket receive buffer (fixes long ban lists)
