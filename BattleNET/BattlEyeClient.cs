@@ -332,7 +332,7 @@ namespace BattleNET
                         }
                     }
 
-                    Thread.Sleep(500);
+                    Thread.Sleep(1000);
                 }
 
                 if (!socket.Connected)
