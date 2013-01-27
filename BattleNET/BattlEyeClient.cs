@@ -317,7 +317,7 @@ namespace BattleNET
                         }
                     }
 
-                    if (packetQueue.Count > 0 && socket.Available == 0)
+                    if (socket.Connected && packetQueue.Count > 0 && socket.Available == 0)
                     {
                         try
                         {
