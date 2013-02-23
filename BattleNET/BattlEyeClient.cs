@@ -33,7 +33,7 @@ namespace BattleNET
         private BattlEyeDisconnectionType? disconnectionType;
         private bool keepRunning;
         private int sequenceNumber;
-        private SortedDictionary<int, string> packetQueue;
+        private SortedDictionary<int, string[]> packetQueue;
         private BattlEyeLoginCredentials loginCredentials;
 
         public bool Connected
@@ -69,7 +69,7 @@ namespace BattleNET
             packetReceived = DateTime.Now;
 
             sequenceNumber = 0;
-            packetQueue = new SortedDictionary<int, string>();
+            packetQueue = new SortedDictionary<int, string[]>();
             keepRunning = true;
 
             EndPoint remoteEP = new IPEndPoint(loginCredentials.Host, loginCredentials.Port);
@@ -183,7 +183,7 @@ namespace BattleNET
 
                 if (log)
                 {
-                    packetQueue.Add(sequenceNumber, command);
+                    packetQueue.Add(sequenceNumber, new string[] {command, packetSent.ToString()});
                     sequenceNumber = (sequenceNumber == 255) ? 0 : sequenceNumber + 1;
                 }
             }
@@ -215,7 +215,7 @@ namespace BattleNET
 
                 packetSent = DateTime.Now;
 
-                packetQueue.Add(sequenceNumber, Helpers.StringValueOf(command) + parameters);
+                packetQueue.Add(sequenceNumber, new string[] {Helpers.StringValueOf(command) + parameters, packetSent.ToString()});
                 sequenceNumber = (sequenceNumber == 255) ? 0 : sequenceNumber + 1;
             }
             catch
@@ -322,9 +322,15 @@ namespace BattleNET
                         try
                         {
                             int key = packetQueue.First().Key;
-                            string value = packetQueue[key];
-                            SendCommandPacket(value, false);
-                            packetQueue.Remove(key);
+                            string value = packetQueue[key][0];
+                            DateTime date = DateTime.Parse(packetQueue[key][1]);
+                            TimeSpan timeDiff = DateTime.Now - date;
+
+                            if (timeDiff.TotalSeconds > 2000)
+                            {
+                                SendCommandPacket(value, false);
+                                packetQueue.Remove(key);
+                            }
                         }
                         catch
                         {
