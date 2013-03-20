@@ -291,12 +291,12 @@ namespace BattleNET
             new Thread(delegate() {
                 while (socket.Connected && keepRunning)
                 {
-                    TimeSpan timeoutClient = DateTime.Now - packetSent;
-                    TimeSpan timeoutServer = DateTime.Now - packetReceived;
+                    int timeoutClient = (int)(DateTime.Now - packetSent).TotalSeconds;
+                    int timeoutServer = (int)(DateTime.Now - packetReceived).TotalSeconds;
 
-                    if (timeoutClient.TotalSeconds >= 5)
+                    if (timeoutClient >= 5)
                     {
-                        if (timeoutServer.TotalSeconds >= 20)
+                        if (timeoutServer >= 20)
                         {
                             Disconnect(BattlEyeDisconnectionType.ConnectionLost);
                             keepRunning = true;
@@ -317,9 +317,9 @@ namespace BattleNET
                             int key = packetQueue.First().Key;
                             string value = packetQueue[key][0];
                             DateTime date = DateTime.Parse(packetQueue[key][1]);
-                            TimeSpan timeDiff = DateTime.Now - date;
+                            int timeDiff = (int)(DateTime.Now - date).TotalSeconds;
 
-                            if (timeDiff.TotalSeconds > 2000)
+                            if (timeDiff > 2000)
                             {
                                 SendCommandPacket(value, false);
                                 packetQueue.Remove(key);
