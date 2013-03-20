@@ -319,7 +319,7 @@ namespace BattleNET
                             DateTime date = DateTime.Parse(packetQueue[key][1]);
                             int timeDiff = (int)(DateTime.Now - date).TotalSeconds;
 
-                            if (timeDiff > 2000)
+                            if (timeDiff > 2)
                             {
                                 SendCommandPacket(value, false);
                                 packetQueue.Remove(key);
