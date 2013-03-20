@@ -16,15 +16,6 @@ using System.Threading;
 
 namespace BattleNET
 {
-    public class StateObject
-    {
-        public Socket WorkSocket = null;
-        public const int BufferSize = 2048;
-        public byte[] Buffer = new byte[BufferSize];
-        public StringBuilder Message = new StringBuilder();
-        public int PacketsTodo = 0;
-    }
-
     public class BattlEyeClient
     {
         private Socket socket;
@@ -245,6 +236,8 @@ namespace BattleNET
                     return new byte[] { };
             }
 
+            if (command != null) command = Encoding.GetEncoding(1252).GetString(Encoding.UTF8.GetBytes(command));
+
             string count = Helpers.Bytes2String(new byte[] { (byte)sequenceNumber });
 
             byte[] byteArray = new CRC32().ComputeHash(Helpers.String2Bytes(type + ((packetType != BattlEyePacketType.Command) ? "" : count) + command));
@@ -454,5 +447,14 @@ namespace BattleNET
         public event BattlEyeMessageEventHandler BattlEyeMessageReceived;
         public event BattlEyeConnectEventHandler BattlEyeConnected;
         public event BattlEyeDisconnectEventHandler BattlEyeDisconnected;
+    }
+
+    public class StateObject
+    {
+        public Socket WorkSocket = null;
+        public const int BufferSize = 2048;
+        public byte[] Buffer = new byte[BufferSize];
+        public StringBuilder Message = new StringBuilder();
+        public int PacketsTodo = 0;
     }
 }
