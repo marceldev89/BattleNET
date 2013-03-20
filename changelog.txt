@@ -1,6 +1,9 @@
 v1.3
  * Client now has DNS support
  * BattlEyeLoginCredentials.Host changed from string to IPAddress
+ * Increased timeout check sleep a bit (1 second)
+ * Increased time before a packet gets resend (2 seconds)
+ * Proper UTF8 support
 
 v1.2.1
  * Increased max socket receive buffer (fixes long ban lists)
