@@ -4,6 +4,7 @@ v1.3
  * Increased timeout check sleep a bit (1 second)
  * Increased time before a packet gets resend (2 seconds)
  * Proper UTF8 support
+ * The usual bugfixes and cleanups
 
 v1.2.1
  * Increased max socket receive buffer (fixes long ban lists)
