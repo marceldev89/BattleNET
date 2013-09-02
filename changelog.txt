@@ -1,3 +1,6 @@
+v1.3.1
+ * Fixed an issue where the (first) command would be sent twice
+
 v1.3
  * Client now has DNS support
  * BattlEyeLoginCredentials.Host changed from string to IPAddress
