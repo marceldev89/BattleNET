@@ -169,14 +169,16 @@ namespace BattleNET
 
                 byte[] packet = ConstructPacket(BattlEyePacketType.Command, sequenceNumber, command);
 
-                socket.Send(packet);
                 packetSent = DateTime.Now;
 
                 if (log)
                 {
-                    packetQueue.Add(sequenceNumber, new string[] {command, packetSent.ToString()});
-                    sequenceNumber = (sequenceNumber == 255) ? 0 : sequenceNumber + 1;
+                    packetQueue.Add(sequenceNumber, new string[] { command, packetSent.ToString() });
                 }
+
+                socket.Send(packet);
+
+                sequenceNumber = (sequenceNumber == 255) ? 0 : sequenceNumber + 1;
             }
             catch
             {
@@ -202,11 +204,12 @@ namespace BattleNET
 
                 byte[] packet = ConstructPacket(BattlEyePacketType.Command, sequenceNumber, Helpers.StringValueOf(command) + parameters);
 
-                socket.Send(packet);
-
                 packetSent = DateTime.Now;
 
                 packetQueue.Add(sequenceNumber, new string[] {Helpers.StringValueOf(command) + parameters, packetSent.ToString()});
+
+                socket.Send(packet);
+
                 sequenceNumber = (sequenceNumber == 255) ? 0 : sequenceNumber + 1;
             }
             catch
