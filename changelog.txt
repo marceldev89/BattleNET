@@ -1,3 +1,7 @@
+v1.3.1
+ * Fixed an issue where the (first) command would be sent twice
+ * Fixed an issue where the library would lose connection after a long time, depending on server load (Thanks to EPM Cortez for finding the issue)
+
 v1.3
  * Client now has DNS support
  * BattlEyeLoginCredentials.Host changed from string to IPAddress

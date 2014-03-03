@@ -169,14 +169,16 @@ namespace BattleNET
 
                 byte[] packet = ConstructPacket(BattlEyePacketType.Command, sequenceNumber, command);
 
-                socket.Send(packet);
                 packetSent = DateTime.Now;
 
                 if (log)
                 {
-                    packetQueue.Add(sequenceNumber, new string[] {command, packetSent.ToString()});
-                    sequenceNumber = (sequenceNumber == 255) ? 0 : sequenceNumber + 1;
+                    packetQueue.Add(sequenceNumber, new string[] { command, packetSent.ToString() });
                 }
+
+                socket.Send(packet);
+
+                sequenceNumber = (sequenceNumber == 255) ? 0 : sequenceNumber + 1;
             }
             catch
             {
@@ -202,11 +204,12 @@ namespace BattleNET
 
                 byte[] packet = ConstructPacket(BattlEyePacketType.Command, sequenceNumber, Helpers.StringValueOf(command) + parameters);
 
-                socket.Send(packet);
-
                 packetSent = DateTime.Now;
 
                 packetQueue.Add(sequenceNumber, new string[] {Helpers.StringValueOf(command) + parameters, packetSent.ToString()});
+
+                socket.Send(packet);
+
                 sequenceNumber = (sequenceNumber == 255) ? 0 : sequenceNumber + 1;
             }
             catch
@@ -236,7 +239,10 @@ namespace BattleNET
                     return new byte[] { };
             }
 
-            if (command != null) command = Encoding.GetEncoding(1252).GetString(Encoding.UTF8.GetBytes(command));
+            if (packetType != BattlEyePacketType.Acknowledge)
+            {
+                if (command != null) command = Encoding.GetEncoding(1252).GetString(Encoding.UTF8.GetBytes(command));
+            }
 
             string count = Helpers.Bytes2String(new byte[] { (byte)sequenceNumber });
 
@@ -319,7 +325,7 @@ namespace BattleNET
                             DateTime date = DateTime.Parse(packetQueue[key][1]);
                             int timeDiff = (int)(DateTime.Now - date).TotalSeconds;
 
-                            if (timeDiff > 2)
+                            if (timeDiff > 5)
                             {
                                 SendCommandPacket(value, false);
                                 packetQueue.Remove(key);
