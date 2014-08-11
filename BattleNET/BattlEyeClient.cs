@@ -54,6 +54,21 @@ namespace BattleNET
             this.loginCredentials = loginCredentials;
         }
 
+        public BattlEyeClient(string host, int port, string password)
+        {
+            try
+            {
+                this.loginCredentials = new BattlEyeLoginCredentials();
+                this.loginCredentials.Host = Dns.GetHostAddresses(host)[0];
+                this.loginCredentials.Port = port;
+                this.loginCredentials.Password = password;
+            }
+            catch
+            {
+                // HELP?!
+            }
+        }
+
         public BattlEyeConnectionResult Connect()
         {
             packetSent = DateTime.Now;
