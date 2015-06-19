@@ -7,10 +7,10 @@ BattleNET is a C# (.NET) library and client for the BattlEye protocol.
 ```
 BattleNET           - The library
 BattleNET client    - The client
-AUTHORS.txt         - BattleNET authors
+authors.txt         - BattleNET authors
 BattleNET.sln       - BattleNET solution
-CHANGELOG.txt       - Changes made to BattleNET
-COPYING.txt         - The LGPL license
+changelog.txt       - Changes made to BattleNET
+license.txt         - The LGPL license
 README.md           - This file
 ```
 

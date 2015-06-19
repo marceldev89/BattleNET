@@ -1,8 +1,8 @@
 ﻿/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * BattleNET v1.2 - BattlEye Library and Client            *
+ * BattleNET v1.3 - BattlEye Library and Client            *
  *                                                         *
  *  Copyright (C) 2013 by it's authors.                    *
- *  Some rights reserved. See COPYING.TXT, AUTHORS.TXT.    *
+ *  Some rights reserved. See license.txt, authors.txt.    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 using System;
@@ -17,9 +17,9 @@ namespace BattleNET_client
         private static void Main(string[] args)
         {
             Console.WriteLine(
-                "BattleNET v1.2 - BattlEye Library and Client\n\n" +
+                "BattleNET v1.3 - BattlEye Library and Client\n\n" +
                 "Copyright (C) 2013 by it's authors.\n" +
-                "Some rights reserved. See COPYING.TXT, AUTHORS.TXT.\n"
+                "Some rights reserved. See license.txt, authors.txt.\n"
             );
 
             BattlEyeLoginCredentials loginCredentials;
@@ -60,7 +60,7 @@ namespace BattleNET_client
                 loginCredentials = GetLoginCredentials();
             }
 
-            Console.Title = string.Format("BattleNET client v1.2 - {0}:{1}", loginCredentials.Host, loginCredentials.Port);
+            Console.Title = string.Format("BattleNET client v1.3 - {0}:{1}", loginCredentials.Host, loginCredentials.Port);
 
             BattlEyeClient b = new BattlEyeClient(loginCredentials);
             b.BattlEyeMessageReceived += BattlEyeMessageReceived;
@@ -140,12 +140,12 @@ namespace BattleNET_client
                 {
                     case "-host":
                         {
-                            IPAddress value;
-                            if (IPAddress.TryParse(args[i + 1], out value))
+                            try
                             {
-                                loginCredentials.Host = value.ToString();
+                                IPAddress ip = Dns.GetHostAddresses(args[i + 1])[0];
+                                loginCredentials.Host = ip;
                             }
-                            else
+                            catch
                             {
                                 Console.WriteLine("No valid host given!");
                             }
@@ -186,29 +186,28 @@ namespace BattleNET_client
 
         private static BattlEyeLoginCredentials GetLoginCredentials()
         {
-            string ip = "";
+            IPAddress host = null;
             int port = 0;
             string password = "";
 
             do
             {
-                IPAddress value;
                 string input;
-
-                Console.Write("Enter IP address: ");
+                Console.Write("Enter IP address or hostname: ");
                 input = Console.ReadLine();
 
-                if (IPAddress.TryParse(input, out value))
+                try
                 {
-                    ip = value.ToString();
+                    IPAddress ip = Dns.GetHostAddresses(input)[0];
+                    host = ip;
                 }
-            } while (ip == "");
+                catch { /* try again */ }
+            } while (host == null);
 
             do
             {
                 int value;
                 string input;
-
                 Console.Write("Enter port number: ");
                 input = Console.ReadLine();
 
@@ -231,7 +230,7 @@ namespace BattleNET_client
 
             var loginCredentials = new BattlEyeLoginCredentials
                                        {
-                                           Host = ip,
+                                           Host = host,
                                            Port = port,
                                            Password = password,
                                        };

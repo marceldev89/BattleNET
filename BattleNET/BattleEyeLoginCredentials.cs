@@ -1,15 +1,17 @@
 ﻿/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * BattleNET v1.2 - BattlEye Library and Client            *
+ * BattleNET v1.3 - BattlEye Library and Client            *
  *                                                         *
  *  Copyright (C) 2013 by it's authors.                    *
- *  Some rights reserved. See COPYING.TXT, AUTHORS.TXT.    *
+ *  Some rights reserved. See license.txt, authors.txt.    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+using System.Net;
 
 namespace BattleNET
 {
     public struct BattlEyeLoginCredentials
     {
-        public BattlEyeLoginCredentials(string host, int port, string password)
+        public BattlEyeLoginCredentials(IPAddress host, int port, string password)
             : this()
         {
             Host = host;
@@ -17,7 +19,7 @@ namespace BattleNET
             Password = password;
         }
 
-        public string Host { get; set; }
+        public IPAddress Host { get; set; }
         public int Port { get; set; }
         public string Password { get; set; }
     }

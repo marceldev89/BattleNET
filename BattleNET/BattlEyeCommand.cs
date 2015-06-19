@@ -1,8 +1,8 @@
 ﻿/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * BattleNET v1.2 - BattlEye Library and Client            *
+ * BattleNET v1.3 - BattlEye Library and Client            *
  *                                                         *
  *  Copyright (C) 2013 by it's authors.                    *
- *  Some rights reserved. See COPYING.TXT, AUTHORS.TXT.    *
+ *  Some rights reserved. See license.txt, authors.txt.    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 using System.ComponentModel;
