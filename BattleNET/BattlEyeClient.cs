@@ -161,24 +161,23 @@ namespace BattleNET
         private int SendCommandPacket(string command, bool log = true)
         {
             int packetID = sequenceNumber;
+            sequenceNumber = (sequenceNumber == 255) ? 0 : sequenceNumber + 1;
 
             try
             {
                 if (!socket.Connected)
                     return 256;
 
-                byte[] packet = ConstructPacket(BattlEyePacketType.Command, sequenceNumber, command);
+                byte[] packet = ConstructPacket(BattlEyePacketType.Command, packetID, command);
 
                 packetSent = DateTime.Now;
 
                 if (log)
                 {
-                    packetQueue.Add(sequenceNumber, new string[] { command, packetSent.ToString() });
+                    packetQueue.Add(packetID, new string[] { command, packetSent.ToString() });
                 }
 
                 socket.Send(packet);
-
-                sequenceNumber = (sequenceNumber == 255) ? 0 : sequenceNumber + 1;
             }
             catch
             {
@@ -196,21 +195,20 @@ namespace BattleNET
         private int SendCommandPacket(BattlEyeCommand command, string parameters = "")
         {
             int packetID = sequenceNumber;
+            sequenceNumber = (sequenceNumber == 255) ? 0 : sequenceNumber + 1;
 
             try
             {
                 if (!socket.Connected)
                     return 256;
 
-                byte[] packet = ConstructPacket(BattlEyePacketType.Command, sequenceNumber, Helpers.StringValueOf(command) + parameters);
+                byte[] packet = ConstructPacket(BattlEyePacketType.Command, packetID, Helpers.StringValueOf(command) + parameters);
 
                 packetSent = DateTime.Now;
 
-                packetQueue.Add(sequenceNumber, new string[] {Helpers.StringValueOf(command) + parameters, packetSent.ToString()});
+                packetQueue.Add(packetID, new string[] {Helpers.StringValueOf(command) + parameters, packetSent.ToString()});
 
                 socket.Send(packet);
-
-                sequenceNumber = (sequenceNumber == 255) ? 0 : sequenceNumber + 1;
             }
             catch
             {
