@@ -1,7 +1,7 @@
 ﻿/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * BattleNET v1.3 - BattlEye Library and Client            *
+ * BattleNET v1.3.2 - BattlEye Library and Client            *
  *                                                         *
- *  Copyright (C) 2013 by it's authors.                    *
+ *  Copyright (C) 2015 by it's authors.                    *
  *  Some rights reserved. See license.txt, authors.txt.    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
@@ -17,8 +17,8 @@ namespace BattleNET_client
         private static void Main(string[] args)
         {
             Console.WriteLine(
-                "BattleNET v1.3 - BattlEye Library and Client\n\n" +
-                "Copyright (C) 2013 by it's authors.\n" +
+                "BattleNET v1.3.2 - BattlEye Library and Client\n\n" +
+                "Copyright (C) 2015 by it's authors.\n" +
                 "Some rights reserved. See license.txt, authors.txt.\n"
             );
 
@@ -60,7 +60,7 @@ namespace BattleNET_client
                 loginCredentials = GetLoginCredentials();
             }
 
-            Console.Title = string.Format("BattleNET client v1.3 - {0}:{1}", loginCredentials.Host, loginCredentials.Port);
+            Console.Title = string.Format("BattleNET client v1.3.2 - {0}:{1}", loginCredentials.Host, loginCredentials.Port);
 
             BattlEyeClient b = new BattlEyeClient(loginCredentials);
             b.BattlEyeMessageReceived += BattlEyeMessageReceived;
