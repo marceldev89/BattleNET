@@ -136,5 +136,11 @@ namespace BattleNET
         /// </summary>
         [Description("writeBans")]
         WriteBans,
+		
+        /// <summary>
+        /// admins - Gets connected RCON clients.
+        /// </summary>
+        [Description("admins")]
+        admins,
     }
 }
