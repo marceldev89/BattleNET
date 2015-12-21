@@ -24,6 +24,7 @@ namespace BattleNET
         private BattlEyeDisconnectionType? disconnectionType;
         private bool keepRunning;
         private int sequenceNumber;
+        private int currentPacket;
         private SortedDictionary<int, string[]> packetQueue;
         private BattlEyeLoginCredentials loginCredentials;
 
@@ -60,6 +61,7 @@ namespace BattleNET
             packetReceived = DateTime.Now;
 
             sequenceNumber = 0;
+            currentPacket = -1;
             packetQueue = new SortedDictionary<int, string[]>();
             keepRunning = true;
 
@@ -176,8 +178,10 @@ namespace BattleNET
                 {
                     packetQueue.Add(packetID, new string[] { command, packetSent.ToString() });
                 }
-
-                socket.Send(packet);
+                else 
+                {
+                    sendPacket(packet);
+                }
             }
             catch
             {
@@ -207,8 +211,6 @@ namespace BattleNET
                 packetSent = DateTime.Now;
 
                 packetQueue.Add(packetID, new string[] {Helpers.StringValueOf(command) + parameters, packetSent.ToString()});
-
-                socket.Send(packet);
             }
             catch
             {
@@ -216,6 +218,10 @@ namespace BattleNET
             }
 
             return packetID;
+        }
+
+        private void sendPacket(byte[] packet) {
+            socket.Send(packet);
         }
 
         private byte[] ConstructPacket(BattlEyePacketType packetType, int sequenceNumber, string command)
@@ -319,14 +325,14 @@ namespace BattleNET
                         try
                         {
                             int key = packetQueue.First().Key;
-                            string value = packetQueue[key][0];
-                            DateTime date = DateTime.Parse(packetQueue[key][1]);
-                            int timeDiff = (int)(DateTime.Now - date).TotalSeconds;
 
-                            if (timeDiff > 5)
-                            {
-                                SendCommandPacket(value, false);
-                                packetQueue.Remove(key);
+                            if (currentPacket == -1 || !packetQueue.ContainsKey(currentPacket)) {
+                                currentPacket = key;
+                                string value = packetQueue[key][0];
+                                DateTime date = DateTime.Parse(packetQueue[key][1]);
+                                int timeDiff = (int)(DateTime.Now - date).TotalSeconds;
+
+                                sendPacket(ConstructPacket(BattlEyePacketType.Command, key, value));
                             }
                         }
                         catch
@@ -335,7 +341,7 @@ namespace BattleNET
                         }
                     }
 
-                    Thread.Sleep(1000);
+                    Thread.Sleep(250);
                 }
 
                 if (!socket.Connected)
@@ -411,7 +417,7 @@ namespace BattleNET
                         }
                     }
 
-                    if (packetQueue.ContainsKey(state.Buffer[8]))
+                    if (packetQueue.ContainsKey(state.Buffer[8]) && state.PacketsTodo == 0)
                     {
                         packetQueue.Remove(state.Buffer[8]);
                     }
