@@ -1,3 +1,6 @@
+v1.3.3
+ * Improved command queuing system (Fixes #37)
+
 v1.3.2
  * Fixed an issue with banlists (Thank you DomiStyle)
  * Added "admins" command, which returns all connected RCon clients (Thank you maca134)
