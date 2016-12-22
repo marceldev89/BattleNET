@@ -376,6 +376,13 @@ namespace BattleNET
                     return;
                 }
 
+                // this method can be called from the middle of a .Disconnect() call
+                // test with Debug > Exception > CLR exs on
+                if (!client.Connected) 
+                {
+                    return;
+                }
+
                 int bytesRead = client.EndReceive(ar);
 
                 if (state.Buffer[7] == 0x02)
