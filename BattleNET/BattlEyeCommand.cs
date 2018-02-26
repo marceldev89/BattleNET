@@ -10,7 +10,7 @@ using System.ComponentModel;
 namespace BattleNET
 {
     public enum BattlEyeCommand
-    {        
+    {
         /// <summary>
         /// #init - Reload server config file loaded by –config option.
         /// </summary>
@@ -58,7 +58,7 @@ namespace BattleNET
         /// </summary>
         [Description("missions")]
         Missions,
-        
+
         /// <summary>
         /// RConPassword [password] - Changes the RCon password.
         /// </summary>
@@ -105,7 +105,7 @@ namespace BattleNET
         /// loadEvents - (Re)load createvehicle.txt, remoteexec.txt and publicvariable.txt
         /// </summary>
         [Description("loadEvents")]
-        loadEvents,
+        LoadEvents,
 
         /// <summary>
         /// bans - Show a list of all BE server bans.
@@ -136,11 +136,11 @@ namespace BattleNET
         /// </summary>
         [Description("writeBans")]
         WriteBans,
-		
+
         /// <summary>
         /// admins - Gets connected RCON clients.
         /// </summary>
         [Description("admins")]
-        admins,
+        Admins,
     }
 }

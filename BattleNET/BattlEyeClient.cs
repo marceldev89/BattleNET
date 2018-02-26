@@ -6,13 +6,12 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading;
+using System.Threading.Tasks;
 
 namespace BattleNET
 {
@@ -178,7 +177,7 @@ namespace BattleNET
                 {
                     packetQueue.Add(packetID, new string[] { command, packetSent.ToString() });
                 }
-                else 
+                else
                 {
                     sendPacket(packet);
                 }
@@ -210,7 +209,7 @@ namespace BattleNET
 
                 packetSent = DateTime.Now;
 
-                packetQueue.Add(packetID, new string[] {Helpers.StringValueOf(command) + parameters, packetSent.ToString()});
+                packetQueue.Add(packetID, new string[] { Helpers.StringValueOf(command) + parameters, packetSent.ToString() });
             }
             catch
             {
@@ -220,7 +219,8 @@ namespace BattleNET
             return packetID;
         }
 
-        private void sendPacket(byte[] packet) {
+        private void sendPacket(byte[] packet)
+        {
             socket.Send(packet);
         }
 
@@ -289,7 +289,7 @@ namespace BattleNET
                 OnDisconnect(loginCredentials, disconnectionType);
         }
 
-        private void Receive()
+        private async void Receive()
         {
             StateObject state = new StateObject();
             state.WorkSocket = socket;
@@ -298,68 +298,68 @@ namespace BattleNET
 
             socket.BeginReceive(state.Buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallback), state);
 
-            new Thread(delegate() {
-                while (socket.Connected && keepRunning)
+            while (socket.Connected && keepRunning)
+            {
+                int timeoutClient = (int)(DateTime.Now - packetSent).TotalSeconds;
+                int timeoutServer = (int)(DateTime.Now - packetReceived).TotalSeconds;
+
+                if (timeoutClient >= 5)
                 {
-                    int timeoutClient = (int)(DateTime.Now - packetSent).TotalSeconds;
-                    int timeoutServer = (int)(DateTime.Now - packetReceived).TotalSeconds;
-
-                    if (timeoutClient >= 5)
+                    if (timeoutServer >= 20)
                     {
-                        if (timeoutServer >= 20)
-                        {
-                            Disconnect(BattlEyeDisconnectionType.ConnectionLost);
-                            keepRunning = true;
-                        }
-                        else
-                        {
-                            if (packetQueue.Count == 0)
-                            {
-                                SendCommandPacket(null, false);
-                            }
-                        }
-                    }
-
-                    if (socket.Connected && packetQueue.Count > 0 && socket.Available == 0)
-                    {
-                        try
-                        {
-                            int key = packetQueue.First().Key;
-
-                            if (currentPacket == -1 || !packetQueue.ContainsKey(currentPacket)) {
-                                currentPacket = key;
-                                string value = packetQueue[key][0];
-                                DateTime date = DateTime.Parse(packetQueue[key][1]);
-                                int timeDiff = (int)(DateTime.Now - date).TotalSeconds;
-
-                                sendPacket(ConstructPacket(BattlEyePacketType.Command, key, value));
-                            }
-                        }
-                        catch
-                        {
-                            // Prevent possible crash when packet is received at the same moment it's trying to resend it.
-                        }
-                    }
-
-                    Thread.Sleep(250);
-                }
-
-                if (!socket.Connected)
-                {
-                    if (ReconnectOnPacketLoss && keepRunning)
-                    {
-                        Connect();
-                    }
-                    else if (!keepRunning)
-                    {
-                         //let the thread finish without further action
+                        Disconnect(BattlEyeDisconnectionType.ConnectionLost);
+                        keepRunning = true;
                     }
                     else
                     {
-                        OnDisconnect(loginCredentials, BattlEyeDisconnectionType.ConnectionLost);
+                        if (packetQueue.Count == 0)
+                        {
+                            SendCommandPacket(null, false);
+                        }
                     }
                 }
-            }){IsBackground = true}.Start();
+
+                if (socket.Connected && packetQueue.Count > 0 && socket.Available == 0)
+                {
+                    try
+                    {
+                        int key = packetQueue.First().Key;
+
+                        if (currentPacket == -1 || !packetQueue.ContainsKey(currentPacket))
+                        {
+                            currentPacket = key;
+                            string value = packetQueue[key][0];
+                            DateTime date = DateTime.Parse(packetQueue[key][1]);
+                            int timeDiff = (int)(DateTime.Now - date).TotalSeconds;
+
+                            sendPacket(ConstructPacket(BattlEyePacketType.Command, key, value));
+                        }
+                    }
+                    catch
+                    {
+                        // Prevent possible crash when packet is received at the same moment it's trying to resend it.
+                    }
+                }
+
+                await Task.Delay(250);
+            }
+
+            if (!socket.Connected)
+            {
+                if (ReconnectOnPacketLoss && keepRunning)
+                {
+                    Connect();
+                }
+                else if (!keepRunning)
+                {
+                    //let the thread finish without further action
+                }
+                else
+                {
+                    OnDisconnect(loginCredentials, BattlEyeDisconnectionType.ConnectionLost);
+                }
+            }
+
         }
 
         private void ReceiveCallback(IAsyncResult ar)
@@ -371,7 +371,7 @@ namespace BattleNET
 
                 // this method can be called from the middle of a .Disconnect() call
                 // test with Debug > Exception > CLR exs on
-                if (!client.Connected) 
+                if (!client.Connected)
                 {
                     return;
                 }
