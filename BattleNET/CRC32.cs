@@ -10,6 +10,7 @@ using System.Security.Cryptography;
 
 namespace BattleNET
 {
+    // ReSharper disable once InconsistentNaming
     internal class CRC32 : HashAlgorithm
     {
         public const UInt32 DefaultPolynomial = 0xedb88320;
@@ -79,7 +80,7 @@ namespace BattleNET
             var createTable = new UInt32[256];
             for (int i = 0; i < 256; i++)
             {
-                var entry = (UInt32) i;
+                var entry = (UInt32)i;
                 for (int j = 0; j < 8; j++)
                     if ((entry & 1) == 1)
                         entry = (entry >> 1) ^ polynomial;

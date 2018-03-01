@@ -17,12 +17,11 @@ namespace BattleNET
     {
         public static string Hex2Ascii(string hexString)
         {
-            byte[] tmp;
-            int j = 0;
-            tmp = new byte[(hexString.Length)/2];
-            for (int i = 0; i <= hexString.Length - 2; i += 2)
+            var j = 0;
+            var tmp = new byte[(hexString.Length) / 2];
+            for (var i = 0; i <= hexString.Length - 2; i += 2)
             {
-                tmp[j] = (byte) Convert.ToChar(Int32.Parse(hexString.Substring(i, 2), NumberStyles.HexNumber));
+                tmp[j] = (byte)Convert.ToChar(Int32.Parse(hexString.Substring(i, 2), NumberStyles.HexNumber));
 
                 j++;
             }
@@ -48,7 +47,7 @@ namespace BattleNET
         {
             FieldInfo fi = value.GetType().GetField(value.ToString());
             var attributes =
-                (DescriptionAttribute[]) fi.GetCustomAttributes(typeof (DescriptionAttribute), false);
+                (DescriptionAttribute[])fi.GetCustomAttributes(typeof(DescriptionAttribute), false);
             if (attributes.Length > 0)
             {
                 return attributes[0].Description;
@@ -64,7 +63,7 @@ namespace BattleNET
             string[] names = Enum.GetNames(enumType);
             foreach (string name in names)
             {
-                if (StringValueOf((Enum) Enum.Parse(enumType, name)).Equals(value))
+                if (StringValueOf((Enum)Enum.Parse(enumType, name)).Equals(value))
                 {
                     return Enum.Parse(enumType, name);
                 }

@@ -19,7 +19,7 @@ namespace BattleNET
             Id = id;
         }
 
-        public string Message { get; private set; }
-        public int Id { get; private set; }
+        public string Message { get; }
+        public int Id { get; }
     }
 }

@@ -7,6 +7,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -17,23 +18,17 @@ namespace BattleNET
 {
     public class BattlEyeClient
     {
-        private Socket socket;
-        private DateTime packetSent;
-        private DateTime packetReceived;
-        private BattlEyeDisconnectionType? disconnectionType;
-        private bool keepRunning;
-        private int sequenceNumber;
-        private int currentPacket;
-        private SortedDictionary<int, string[]> packetQueue;
-        private BattlEyeLoginCredentials loginCredentials;
+        private Socket _socket;
+        private DateTime _packetSent;
+        private DateTime _packetReceived;
+        private BattlEyeDisconnectionType? _disconnectionType;
+        private bool _keepRunning;
+        private int _sequenceNumber;
+        private int _currentPacket;
+        private SortedDictionary<int, string[]> _packetQueue;
+        private BattlEyeLoginCredentials _loginCredentials;
 
-        public bool Connected
-        {
-            get
-            {
-                return socket != null && socket.Connected;
-            }
-        }
+        public bool Connected => _socket != null && _socket.Connected;
 
         public bool ReconnectOnPacketLoss
         {
@@ -41,64 +36,59 @@ namespace BattleNET
             set;
         }
 
-        public int CommandQueue
-        {
-            get
-            {
-                return packetQueue.Count;
-            }
-        }
+        public int CommandQueue => _packetQueue.Count;
 
         public BattlEyeClient(BattlEyeLoginCredentials loginCredentials)
         {
-            this.loginCredentials = loginCredentials;
+            _loginCredentials = loginCredentials;
         }
 
         public BattlEyeConnectionResult Connect()
         {
-            packetSent = DateTime.Now;
-            packetReceived = DateTime.Now;
+            _packetSent = DateTime.Now;
+            _packetReceived = DateTime.Now;
 
-            sequenceNumber = 0;
-            currentPacket = -1;
-            packetQueue = new SortedDictionary<int, string[]>();
-            keepRunning = true;
+            _sequenceNumber = 0;
+            _currentPacket = -1;
+            _packetQueue = new SortedDictionary<int, string[]>();
+            _keepRunning = true;
 
-            EndPoint remoteEP = new IPEndPoint(loginCredentials.Host, loginCredentials.Port);
-            socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            socket.ReceiveBufferSize = Int32.MaxValue;
-            socket.ReceiveTimeout = 5000;
+            var remoteEp = new IPEndPoint(_loginCredentials.Host, _loginCredentials.Port);
+            _socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp)
+            {
+                ReceiveBufferSize = int.MaxValue,
+                ReceiveTimeout = 5000
+            };
 
             try
             {
-                socket.Connect(remoteEP);
+                _socket.Connect(remoteEp);
 
-                if (SendLoginPacket(loginCredentials.Password) == BattlEyeCommandResult.Error)
+                if (SendLoginPacket(_loginCredentials.Password) == BattlEyeCommandResult.Error)
                     return BattlEyeConnectionResult.ConnectionFailed;
 
                 var bytesReceived = new Byte[4096];
-                int bytes = 0;
 
-                bytes = socket.Receive(bytesReceived, bytesReceived.Length, 0);
+                _socket.Receive(bytesReceived, bytesReceived.Length, 0);
 
                 if (bytesReceived[7] == 0x00)
                 {
                     if (bytesReceived[8] == 0x01)
                     {
-                        OnConnect(loginCredentials, BattlEyeConnectionResult.Success);
+                        OnConnect(_loginCredentials, BattlEyeConnectionResult.Success);
 
                         Receive();
                     }
                     else
                     {
-                        OnConnect(loginCredentials, BattlEyeConnectionResult.InvalidLogin);
+                        OnConnect(_loginCredentials, BattlEyeConnectionResult.InvalidLogin);
                         return BattlEyeConnectionResult.InvalidLogin;
                     }
                 }
             }
             catch
             {
-                if (disconnectionType == BattlEyeDisconnectionType.ConnectionLost)
+                if (_disconnectionType == BattlEyeDisconnectionType.ConnectionLost)
                 {
                     Disconnect(BattlEyeDisconnectionType.ConnectionLost);
                     Connect();
@@ -106,7 +96,7 @@ namespace BattleNET
                 }
                 else
                 {
-                    OnConnect(loginCredentials, BattlEyeConnectionResult.ConnectionFailed);
+                    OnConnect(_loginCredentials, BattlEyeConnectionResult.ConnectionFailed);
                     return BattlEyeConnectionResult.ConnectionFailed;
                 }
             }
@@ -118,13 +108,13 @@ namespace BattleNET
         {
             try
             {
-                if (!socket.Connected)
+                if (!_socket.Connected)
                     return BattlEyeCommandResult.NotConnected;
 
                 byte[] packet = ConstructPacket(BattlEyePacketType.Login, 0, command);
-                socket.Send(packet);
+                _socket.Send(packet);
 
-                packetSent = DateTime.Now;
+                _packetSent = DateTime.Now;
             }
             catch
             {
@@ -134,24 +124,21 @@ namespace BattleNET
             return BattlEyeCommandResult.Success;
         }
 
-        private BattlEyeCommandResult SendAcknowledgePacket(string command)
+        private void SendAcknowledgePacket(string command)
         {
             try
             {
-                if (!socket.Connected)
-                    return BattlEyeCommandResult.NotConnected;
+                if (!_socket.Connected) return;
 
                 byte[] packet = ConstructPacket(BattlEyePacketType.Acknowledge, 0, command);
-                socket.Send(packet);
+                _socket.Send(packet);
 
-                packetSent = DateTime.Now;
+                _packetSent = DateTime.Now;
             }
             catch
             {
-                return BattlEyeCommandResult.Error;
+                // ignored
             }
-
-            return BattlEyeCommandResult.Success;
         }
 
         public int SendCommand(string command, bool log = true)
@@ -161,25 +148,25 @@ namespace BattleNET
 
         private int SendCommandPacket(string command, bool log = true)
         {
-            int packetID = sequenceNumber;
-            sequenceNumber = (sequenceNumber == 255) ? 0 : sequenceNumber + 1;
+            int packetID = _sequenceNumber;
+            _sequenceNumber = (_sequenceNumber == 255) ? 0 : _sequenceNumber + 1;
 
             try
             {
-                if (!socket.Connected)
+                if (!_socket.Connected)
                     return 256;
 
-                byte[] packet = ConstructPacket(BattlEyePacketType.Command, packetID, command);
+                var packet = ConstructPacket(BattlEyePacketType.Command, packetID, command);
 
-                packetSent = DateTime.Now;
+                _packetSent = DateTime.Now;
 
                 if (log)
                 {
-                    packetQueue.Add(packetID, new string[] { command, packetSent.ToString() });
+                    _packetQueue.Add(packetID, new[] { command, _packetSent.ToString(CultureInfo.InvariantCulture) });
                 }
                 else
                 {
-                    sendPacket(packet);
+                    SendPacket(packet);
                 }
             }
             catch
@@ -197,19 +184,19 @@ namespace BattleNET
 
         private int SendCommandPacket(BattlEyeCommand command, string parameters = "")
         {
-            int packetID = sequenceNumber;
-            sequenceNumber = (sequenceNumber == 255) ? 0 : sequenceNumber + 1;
+            int packetID = _sequenceNumber;
+            _sequenceNumber = (_sequenceNumber == 255) ? 0 : _sequenceNumber + 1;
 
             try
             {
-                if (!socket.Connected)
+                if (!_socket.Connected)
                     return 256;
 
-                byte[] packet = ConstructPacket(BattlEyePacketType.Command, packetID, Helpers.StringValueOf(command) + parameters);
+                ConstructPacket(BattlEyePacketType.Command, packetID, Helpers.StringValueOf(command) + parameters);
 
-                packetSent = DateTime.Now;
+                _packetSent = DateTime.Now;
 
-                packetQueue.Add(packetID, new string[] { Helpers.StringValueOf(command) + parameters, packetSent.ToString() });
+                _packetQueue.Add(packetID, new[] { Helpers.StringValueOf(command) + parameters, _packetSent.ToString(CultureInfo.InvariantCulture) });
             }
             catch
             {
@@ -219,9 +206,9 @@ namespace BattleNET
             return packetID;
         }
 
-        private void sendPacket(byte[] packet)
+        private void SendPacket(byte[] packet)
         {
-            socket.Send(packet);
+            _socket.Send(packet);
         }
 
         private byte[] ConstructPacket(BattlEyePacketType packetType, int sequenceNumber, string command)
@@ -248,91 +235,87 @@ namespace BattleNET
                 if (command != null) command = Encoding.GetEncoding(1252).GetString(Encoding.UTF8.GetBytes(command));
             }
 
-            string count = Helpers.Bytes2String(new byte[] { (byte)sequenceNumber });
+            var count = Helpers.Bytes2String(new[] { (byte)sequenceNumber });
 
-            byte[] byteArray = new CRC32().ComputeHash(Helpers.String2Bytes(type + ((packetType != BattlEyePacketType.Command) ? "" : count) + command));
+            var byteArray = new CRC32().ComputeHash(Helpers.String2Bytes(type + ((packetType != BattlEyePacketType.Command) ? "" : count) + command));
 
-            string hash = new string(Helpers.Hex2Ascii(BitConverter.ToString(byteArray).Replace("-", "")).ToCharArray().Reverse().ToArray());
+            var hash = new string(Helpers.Hex2Ascii(BitConverter.ToString(byteArray).Replace("-", "")).ToCharArray().Reverse().ToArray());
 
-            string packet = "BE" + hash + type + ((packetType != BattlEyePacketType.Command) ? "" : count) + command;
+            var packet = "BE" + hash + type + ((packetType != BattlEyePacketType.Command) ? "" : count) + command;
 
             return Helpers.String2Bytes(packet);
         }
 
         public void Disconnect()
         {
-            keepRunning = false;
+            _keepRunning = false;
 
-            if (socket.Connected)
+            if (_socket.Connected)
             {
-                socket.Shutdown(SocketShutdown.Both);
-                socket.Close();
+                _socket.Shutdown(SocketShutdown.Both);
+                _socket.Close();
             }
 
-            OnDisconnect(loginCredentials, BattlEyeDisconnectionType.Manual);
+            OnDisconnect(_loginCredentials, BattlEyeDisconnectionType.Manual);
         }
 
         private void Disconnect(BattlEyeDisconnectionType? disconnectionType)
         {
             if (disconnectionType == BattlEyeDisconnectionType.ConnectionLost)
-                this.disconnectionType = BattlEyeDisconnectionType.ConnectionLost;
+                _disconnectionType = BattlEyeDisconnectionType.ConnectionLost;
 
-            keepRunning = false;
+            _keepRunning = false;
 
-            if (socket.Connected)
+            if (_socket.Connected)
             {
-                socket.Shutdown(SocketShutdown.Both);
-                socket.Close();
+                _socket.Shutdown(SocketShutdown.Both);
+                _socket.Close();
             }
 
             if (disconnectionType != null)
-                OnDisconnect(loginCredentials, disconnectionType);
+                OnDisconnect(_loginCredentials, disconnectionType);
         }
 
         private async void Receive()
         {
-            StateObject state = new StateObject();
-            state.WorkSocket = socket;
+            var state = new StateObject { WorkSocket = _socket };
 
-            disconnectionType = null;
+            _disconnectionType = null;
 
-            socket.BeginReceive(state.Buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallback), state);
+            _socket.BeginReceive(state.Buffer, 0, StateObject.BufferSize, 0, ReceiveCallback, state);
 
-            while (socket.Connected && keepRunning)
+            while (_socket.Connected && _keepRunning)
             {
-                int timeoutClient = (int)(DateTime.Now - packetSent).TotalSeconds;
-                int timeoutServer = (int)(DateTime.Now - packetReceived).TotalSeconds;
+                int timeoutClient = (int)(DateTime.Now - _packetSent).TotalSeconds;
+                int timeoutServer = (int)(DateTime.Now - _packetReceived).TotalSeconds;
 
                 if (timeoutClient >= 5)
                 {
                     if (timeoutServer >= 20)
                     {
                         Disconnect(BattlEyeDisconnectionType.ConnectionLost);
-                        keepRunning = true;
+                        _keepRunning = true;
                     }
                     else
                     {
-                        if (packetQueue.Count == 0)
+                        if (_packetQueue.Count == 0)
                         {
                             SendCommandPacket(null, false);
                         }
                     }
                 }
 
-                if (socket.Connected && packetQueue.Count > 0 && socket.Available == 0)
+                if (_socket.Connected && _packetQueue.Count > 0 && _socket.Available == 0)
                 {
                     try
                     {
-                        int key = packetQueue.First().Key;
+                        int key = _packetQueue.First().Key;
 
-                        if (currentPacket == -1 || !packetQueue.ContainsKey(currentPacket))
+                        if (_currentPacket == -1 || !_packetQueue.ContainsKey(_currentPacket))
                         {
-                            currentPacket = key;
-                            string value = packetQueue[key][0];
-                            DateTime date = DateTime.Parse(packetQueue[key][1]);
-                            int timeDiff = (int)(DateTime.Now - date).TotalSeconds;
-
-                            sendPacket(ConstructPacket(BattlEyePacketType.Command, key, value));
+                            _currentPacket = key;
+                            string value = _packetQueue[key][0];
+                            SendPacket(ConstructPacket(BattlEyePacketType.Command, key, value));
                         }
                     }
                     catch
@@ -344,19 +327,19 @@ namespace BattleNET
                 await Task.Delay(250);
             }
 
-            if (!socket.Connected)
+            if (!_socket.Connected)
             {
-                if (ReconnectOnPacketLoss && keepRunning)
+                if (ReconnectOnPacketLoss && _keepRunning)
                 {
                     Connect();
                 }
-                else if (!keepRunning)
+                else if (!_keepRunning)
                 {
                     //let the thread finish without further action
                 }
                 else
                 {
-                    OnDisconnect(loginCredentials, BattlEyeDisconnectionType.ConnectionLost);
+                    OnDisconnect(_loginCredentials, BattlEyeDisconnectionType.ConnectionLost);
                 }
             }
 
@@ -417,15 +400,15 @@ namespace BattleNET
                         }
                     }
 
-                    if (packetQueue.ContainsKey(state.Buffer[8]) && state.PacketsTodo == 0)
+                    if (_packetQueue.ContainsKey(state.Buffer[8]) && state.PacketsTodo == 0)
                     {
-                        packetQueue.Remove(state.Buffer[8]);
+                        _packetQueue.Remove(state.Buffer[8]);
                     }
                 }
 
-                packetReceived = DateTime.Now;
+                _packetReceived = DateTime.Now;
 
-                client.BeginReceive(state.Buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallback), state);
+                client.BeginReceive(state.Buffer, 0, StateObject.BufferSize, 0, ReceiveCallback, state);
             }
             catch
             {
@@ -435,8 +418,7 @@ namespace BattleNET
 
         private void OnBattlEyeMessage(string message, int id)
         {
-            if (BattlEyeMessageReceived != null)
-                BattlEyeMessageReceived(new BattlEyeMessageEventArgs(message, id));
+            BattlEyeMessageReceived?.Invoke(new BattlEyeMessageEventArgs(message, id));
         }
 
         private void OnConnect(BattlEyeLoginCredentials loginDetails, BattlEyeConnectionResult connectionResult)
@@ -444,14 +426,12 @@ namespace BattleNET
             if (connectionResult == BattlEyeConnectionResult.ConnectionFailed || connectionResult == BattlEyeConnectionResult.InvalidLogin)
                 Disconnect(null);
 
-            if (BattlEyeConnected != null)
-                BattlEyeConnected(new BattlEyeConnectEventArgs(loginDetails, connectionResult));
+            BattlEyeConnected?.Invoke(new BattlEyeConnectEventArgs(loginDetails, connectionResult));
         }
 
         private void OnDisconnect(BattlEyeLoginCredentials loginDetails, BattlEyeDisconnectionType? disconnectionType)
         {
-            if (BattlEyeDisconnected != null)
-                BattlEyeDisconnected(new BattlEyeDisconnectEventArgs(loginDetails, disconnectionType));
+            BattlEyeDisconnected?.Invoke(new BattlEyeDisconnectEventArgs(loginDetails, disconnectionType));
         }
 
         public event BattlEyeMessageEventHandler BattlEyeMessageReceived;
@@ -461,10 +441,10 @@ namespace BattleNET
 
     public class StateObject
     {
-        public Socket WorkSocket = null;
+        public Socket WorkSocket;
         public const int BufferSize = 2048;
         public byte[] Buffer = new byte[BufferSize];
         public StringBuilder Message = new StringBuilder();
-        public int PacketsTodo = 0;
+        public int PacketsTodo;
     }
 }
