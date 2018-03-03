@@ -124,11 +124,11 @@ namespace BattleNET
             return BattlEyeCommandResult.Success;
         }
 
-        private void SendAcknowledgePacket(string command)
+        private BattlEyeCommandResult SendAcknowledgePacket(string command)
         {
             try
             {
-                if (!_socket.Connected) return;
+                if (!_socket.Connected) return BattlEyeCommandResult.NotConnected;
 
                 byte[] packet = ConstructPacket(BattlEyePacketType.Acknowledge, 0, command);
                 _socket.Send(packet);
@@ -137,8 +137,10 @@ namespace BattleNET
             }
             catch
             {
-                // ignored
+                return BattlEyeCommandResult.Error;
             }
+
+            return BattlEyeCommandResult.Success;
         }
 
         public int SendCommand(string command, bool log = true)
