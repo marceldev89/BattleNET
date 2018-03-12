@@ -91,7 +91,6 @@ namespace BattleNET
                 if (_disconnectionType == BattlEyeDisconnectionType.ConnectionLost)
                 {
                     Disconnect(BattlEyeDisconnectionType.ConnectionLost);
-                    Connect();
                     return BattlEyeConnectionResult.ConnectionFailed;
                 }
                 else
