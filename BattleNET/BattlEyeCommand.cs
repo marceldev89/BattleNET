@@ -5,12 +5,13 @@
  *  Some rights reserved. See license.txt, authors.txt.    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+using System;
 using System.ComponentModel;
 
 namespace BattleNET
 {
     public enum BattlEyeCommand
-    {        
+    {
         /// <summary>
         /// #init - Reload server config file loaded by –config option.
         /// </summary>
@@ -58,7 +59,7 @@ namespace BattleNET
         /// </summary>
         [Description("missions")]
         Missions,
-        
+
         /// <summary>
         /// RConPassword [password] - Changes the RCon password.
         /// </summary>
@@ -105,6 +106,13 @@ namespace BattleNET
         /// loadEvents - (Re)load createvehicle.txt, remoteexec.txt and publicvariable.txt
         /// </summary>
         [Description("loadEvents")]
+        LoadEvents,
+
+        /// <summary>
+        /// loadEvents - (Re)load createvehicle.txt, remoteexec.txt and publicvariable.txt
+        /// </summary>
+        [Description("loadEvents")]
+        [Obsolete("This member is obsolette and will be removed in future. Use LoadEvents instead")]
         loadEvents,
 
         /// <summary>
@@ -136,11 +144,18 @@ namespace BattleNET
         /// </summary>
         [Description("writeBans")]
         WriteBans,
-		
+
         /// <summary>
         /// admins - Gets connected RCON clients.
         /// </summary>
         [Description("admins")]
+        Admins,
+
+        /// <summary>
+        /// admins - Gets connected RCON clients.
+        /// </summary>
+        [Description("admins")]
+        [Obsolete("This member is obsolette and will be removed in future. Use Admins instead")]
         admins,
     }
 }
