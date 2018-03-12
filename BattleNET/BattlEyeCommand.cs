@@ -5,6 +5,7 @@
  *  Some rights reserved. See license.txt, authors.txt.    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+using System;
 using System.ComponentModel;
 
 namespace BattleNET
@@ -108,6 +109,13 @@ namespace BattleNET
         LoadEvents,
 
         /// <summary>
+        /// loadEvents - (Re)load createvehicle.txt, remoteexec.txt and publicvariable.txt
+        /// </summary>
+        [Description("loadEvents")]
+        [Obsolete("This member is obsolette and will be removed in future. Use LoadEvents instead")]
+        loadEvents,
+
+        /// <summary>
         /// bans - Show a list of all BE server bans.
         /// </summary>
         [Description("bans")]
@@ -142,5 +150,12 @@ namespace BattleNET
         /// </summary>
         [Description("admins")]
         Admins,
+
+        /// <summary>
+        /// admins - Gets connected RCON clients.
+        /// </summary>
+        [Description("admins")]
+        [Obsolete("This member is obsolette and will be removed in future. Use Admins instead")]
+        admins,
     }
 }
