@@ -7,7 +7,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Net;
@@ -51,8 +50,6 @@ namespace BattleNET
 
         public BattlEyeConnectionResult ConnectInternal(int counter)
         {
-            Debug.WriteLine($"connect counter {counter}");
-
             _packetSent = DateTime.Now;
             _packetReceived = DateTime.Now;
 
@@ -100,7 +97,10 @@ namespace BattleNET
                 {
                     Disconnect(BattlEyeDisconnectionType.ConnectionLost);
 
-                    if (counter > 0) return ConnectInternal(counter - 1);
+                    if (counter > 0)
+                    {
+                        return ConnectInternal(counter - 1);
+                    }
 
                     return BattlEyeConnectionResult.ConnectionFailed;
                 }
