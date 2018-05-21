@@ -48,7 +48,7 @@ namespace BattleNET
             return ConnectInternal(100);
         }
 
-        public BattlEyeConnectionResult ConnectInternal(int counter)
+        private BattlEyeConnectionResult ConnectInternal(int counter)
         {
             _packetSent = DateTime.Now;
             _packetReceived = DateTime.Now;
