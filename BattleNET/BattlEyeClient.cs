@@ -45,6 +45,11 @@ namespace BattleNET
 
         public BattlEyeConnectionResult Connect()
         {
+            return ConnectInternal(100);
+        }
+
+        private BattlEyeConnectionResult ConnectInternal(int counter)
+        {
             _packetSent = DateTime.Now;
             _packetReceived = DateTime.Now;
 
@@ -91,7 +96,12 @@ namespace BattleNET
                 if (_disconnectionType == BattlEyeDisconnectionType.ConnectionLost)
                 {
                     Disconnect(BattlEyeDisconnectionType.ConnectionLost);
-                    Connect();
+
+                    if (counter > 0)
+                    {
+                        return ConnectInternal(counter - 1);
+                    }
+
                     return BattlEyeConnectionResult.ConnectionFailed;
                 }
                 else
