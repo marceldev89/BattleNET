@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>BattleNET</id>
+    <version>1.3.4.0</version>
+    <title>BattleNET</title>
+    <authors>Marcel de Vries</authors>
+    <owners>Marcel de Vries</owners>
+    <licenseUrl>https://github.com/dddlazer/BattleNET/blob/master/license.txt</licenseUrl>
+    <projectUrl>https://github.com/dddlazer/BattleNET</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>BattlEye Library</description>
+    <releaseNotes>Initial NuGet release.</releaseNotes>
+    <copyright>Copyright 2018</copyright>
+    <tags>battleye rcon arma server management</tags>
+  </metadata>
+</package>
