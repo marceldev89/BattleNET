@@ -40,6 +40,8 @@ namespace BattleNET
 
         public BattlEyeClient(BattlEyeLoginCredentials loginCredentials)
         {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
             _loginCredentials = loginCredentials;
         }
 
