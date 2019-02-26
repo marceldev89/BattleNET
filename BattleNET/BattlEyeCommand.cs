@@ -37,6 +37,12 @@ namespace BattleNET
         Restart,
 
         /// <summary>
+        /// #restartserver - Restart server.
+        /// </summary>
+        [Description("#restartserver")]
+        RestartServer,
+
+        /// <summary>
         /// #lock - Locks the server, prevents new clients from joining.
         /// </summary>
         [Description("#lock")]
