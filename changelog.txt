@@ -1,3 +1,8 @@
+v1.3.4
+ * Convert thread to async method (https://github.com/tym32167)
+ * Move to .NET Standard 2.0 (https://github.com/tym32167)
+ * Limit connection attempts to 100 to get rid of the stack overflow issue (https://github.com/tym32167)
+
 v1.3.3
  * Improved command queuing system (Fixes #37)
 

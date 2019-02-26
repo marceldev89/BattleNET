@@ -1,4 +1,4 @@
-# BattleNET #
+# BattleNET [![NuGet](https://img.shields.io/nuget/v/BattleNET.svg)](https://www.nuget.org/packages/BattleNET/) #
 
 BattleNET is a C# (.NET) library and client for the BattlEye protocol.
 
